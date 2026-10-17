@@ -71,8 +71,12 @@ fit as (
 select
     j.*,
     f.r_score_log_gdp,
+    f.slope_log_gdp,
+    f.intercept_log_gdp,
     f.n_gdp,
     f.r_score_hdi,
+    f.slope_hdi,
+    f.intercept_hdi,
     f.n_hdi,
     f.intercept_log_gdp + f.slope_log_gdp * j.log10_gdp_per_capita              as expected_score_from_gdp,
     j.visa_free_score - (f.intercept_log_gdp + f.slope_log_gdp * j.log10_gdp_per_capita) as residual_gdp,

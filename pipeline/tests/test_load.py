@@ -3,6 +3,7 @@ from __future__ import annotations
 import duckdb
 
 from borderless_pipeline.extract.common import Manifest
+from borderless_pipeline.extract.geo import feature_attributes
 from borderless_pipeline.extract.visa import extract_visa
 from borderless_pipeline.load import load_raw
 
@@ -18,7 +19,7 @@ def _fake_other_sources(settings):
     hdi.parent.mkdir(parents=True)
     hdi.write_text("iso3,country,hdi_2022,hdi_2023\nFRA,France,0.91,0.92\n")
     ne = raw / "natural_earth" / "countries.ndjson"
-    write_ndjson(ne, [{"adm0_a3": "FRA", "iso_a3": "-99", "name": "France"}])
+    write_ndjson(ne, feature_attributes({"features": [{"properties": {"ADM0_A3": "FRA", "ISO_A3": "-99", "NAME": "France"}}]}))
     m = Manifest(raw)
     m.record("worldbank", url="wb", files=[gdp, wb])
     m.record("undp_hdi", url="hdi", files=[hdi])

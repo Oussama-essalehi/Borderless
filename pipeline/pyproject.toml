@@ -28,3 +28,4 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = ["integration: runs dbt and the full pipeline on fixture data (slower)"]

@@ -13,6 +13,9 @@ from pathlib import Path
 import duckdb
 
 from .config import Settings
+from .extract.geo import KEEP_PROPERTIES
+
+NUMERIC_NE_PROPERTIES = {"LABEL_X", "LABEL_Y", "POP_EST"}
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +37,11 @@ def load_raw(settings: Settings) -> dict[str, int]:
 
     def downloaded_at(source: str) -> str:
         return manifest[source]["downloaded_at"]
+
+    # Explicit schema so a property that is empty everywhere still gets a usable type.
+    ne_columns = ", ".join(
+        f"'{p.lower()}': '{'DOUBLE' if p in NUMERIC_NE_PROPERTIES else 'VARCHAR'}'" for p in KEEP_PROPERTIES
+    )
 
     statements = {
         # Older files call the third column "Code", newer ones "Requirement":
@@ -67,7 +75,8 @@ def load_raw(settings: Settings) -> dict[str, int]:
         """,
         "natural_earth_countries": f"""
             select *, timestamptz '{downloaded_at("natural_earth")}' as _downloaded_at
-            from read_json('{_sql_path(raw / "natural_earth" / "countries.ndjson")}', format = 'newline_delimited')
+            from read_json('{_sql_path(raw / "natural_earth" / "countries.ndjson")}', format = 'newline_delimited',
+                           columns = {{{ne_columns}}})
         """,
     }
 

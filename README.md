@@ -33,8 +33,11 @@ tested warehouse every month and exports static JSON for an interactive map.
 | ![Wealth](docs/screenshots/wealth.png) | **Openness vs wealth.** Visa-free score against GDP per capita (log scale, r = 0.83) or HDI (r = 0.81), with the outliers labelled: Malaysia and the Solomon Islands do much better than income predicts, Iraq and Qatar much worse. Click a dot to open that passport. |
 | ![Changes](docs/screenshots/changes.png) | **What changed** between the two latest snapshots: 727 pairs lost visa-free access and 414 gained a new ETA requirement (Suriname, Saint Kitts and Nevis and Israel account for most of them, and the UK ETA now reaches European visitors). Each row opens the pair on the map. There is also a **trip planner** that lists where you can go without applying for anything in advance, by region, longest stay first. |
 
-It works in light and dark mode, down to phone width, and with the keyboard. axe-core reports no
-violations on any view.
+The site is in **English and French**: it follows the browser's language, the EN/FR button switches
+it, and links keep the choice (`?lang=fr`), so either version can be shared. Country names come from
+Natural Earth's French names and the timeline events are translated in the dbt seed. It works in light
+and dark mode, down to phone width, and with the keyboard. axe-core reports no violations on any view,
+in either language.
 
 <img src="docs/screenshots/mobile.png" alt="Phone layout" width="260">
 

@@ -35,8 +35,8 @@ export async function renderInsightsTab(app: App, body: HTMLElement): Promise<vo
       (visa-free ${network.method.edge_weights.visa_free}, on arrival ${network.method.edge_weights.visa_on_arrival},
       ETA ${network.method.edge_weights.eta}, e-visa ${network.method.edge_weights.e_visa},
       visa required ${network.method.edge_weights.visa_required}, no admission: no edge).</p>
-    <div class="views" role="radiogroup" aria-label="Ranking" id="metric-switch">
-      ${METRICS.map((m) => `<button type="button" role="radio" aria-checked="${m.id === metric}" data-metric="${m.id}">${m.label}</button>`).join("")}
+    <div class="views" role="group" aria-label="Ranking" id="metric-switch">
+      ${METRICS.map((m) => `<button type="button" aria-pressed="${m.id === metric}" data-metric="${m.id}">${m.label}</button>`).join("")}
     </div>
     <p class="subtle">${escapeHtml(help)}${stale ? ` Computed for the ${escapeHtml(formatDate(network.snapshot_date))} snapshot.` : ""}</p>
     <table class="ranking">

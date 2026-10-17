@@ -38,7 +38,7 @@ export function renderScatter(el: HTMLElement, spec: ScatterSpec): void {
   el.innerHTML = "";
   el.classList.add("chart");
   const svg = select(el).append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", width).attr("height", height)
-    .attr("role", "img").attr("aria-label", `${spec.yLabel} against ${spec.xLabel}`);
+    .attr("role", "group").attr("aria-label", `${spec.yLabel} against ${spec.xLabel}`);
 
   svg.append("g").attr("class", "grid").attr("transform", `translate(${m.left},0)`)
     .call(axisLeft(y).ticks(5).tickSize(-(width - m.left - m.right)).tickFormat(() => ""));

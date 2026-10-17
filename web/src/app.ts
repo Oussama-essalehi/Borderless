@@ -175,7 +175,7 @@ export class App {
   private renderViewSwitch(): void {
     const current = this.store.state.view;
     const html = [...this.views.values()]
-      .map((v) => `<button type="button" role="radio" aria-checked="${v.id === current}" data-view="${v.id}">${escapeHtml(v.label)}</button>`)
+      .map((v) => `<button type="button" aria-pressed="${v.id === current}" data-view="${v.id}">${escapeHtml(v.label)}</button>`)
       .join("");
     if (this.els.views.innerHTML !== html) {
       this.els.views.innerHTML = html;

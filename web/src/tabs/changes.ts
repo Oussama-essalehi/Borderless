@@ -56,9 +56,9 @@ export async function renderChangesTab(app: App, body: HTMLElement): Promise<voi
       UK and Israeli ETAs), but a few may come from differences in how the two scrapers read the source.</p>` : ""}
     ${passport ? `<label class="check"><input type="checkbox" id="only-selected"${onlySelected ? " checked" : ""}/>
       Only changes involving ${escapeHtml(app.data.name(passport))}</label>` : ""}
-    <div class="chips" role="radiogroup" aria-label="Type of change">
-      <button type="button" role="radio" class="chip-button" aria-checked="${filter === "all"}" data-type="all">All <span>${scoped.length}</span></button>
-      ${TYPES.map((t) => `<button type="button" role="radio" class="chip-button" aria-checked="${filter === t.id}" data-type="${t.id}">${t.label} <span>${count(t.id)}</span></button>`).join("")}
+    <div class="chips" role="group" aria-label="Type of change">
+      <button type="button" class="chip-button" aria-pressed="${filter === "all"}" data-type="all">All <span>${scoped.length}</span></button>
+      ${TYPES.map((t) => `<button type="button" class="chip-button" aria-pressed="${filter === t.id}" data-type="${t.id}">${t.label} <span>${count(t.id)}</span></button>`).join("")}
     </div>
     <ul class="changes">${rows
       .slice(0, shown)

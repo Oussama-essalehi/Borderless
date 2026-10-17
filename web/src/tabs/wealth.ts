@@ -41,9 +41,9 @@ export async function renderWealthTab(app: App, body: HTMLElement): Promise<void
     <p class="subtle">Each dot is a passport in the ${escapeHtml(formatDate(data.snapshot_date))} snapshot: its visa-free score
       against ${axis === "gdp" ? "GDP per capita (log scale, current US$, World Bank)" : "the Human Development Index (UNDP)"}.
       Click a dot to open that passport on the map.</p>
-    <div class="views" role="radiogroup" aria-label="Wealth measure" id="wealth-axis">
-      <button type="button" role="radio" aria-checked="${axis === "gdp"}" data-axis="gdp">GDP per capita</button>
-      <button type="button" role="radio" aria-checked="${axis === "hdi"}" data-axis="hdi">HDI</button>
+    <div class="views" role="group" aria-label="Wealth measure" id="wealth-axis">
+      <button type="button" aria-pressed="${axis === "gdp"}" data-axis="gdp">GDP per capita</button>
+      <button type="button" aria-pressed="${axis === "hdi"}" data-axis="hdi">HDI</button>
     </div>
     <div class="hero">
       <div><div class="figure">r = ${fit.r.toFixed(2)}</div><div class="label">Pearson correlation (n = ${fit.n})</div></div>

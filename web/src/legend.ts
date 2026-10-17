@@ -51,5 +51,5 @@ export function rampLegend(el: HTMLElement, title: string, colors: string[], low
 function wrap(el: HTMLElement, title: string, content: string): string {
   const previous = el.querySelector("details");
   const open = previous ? previous.open : !matchMedia("(max-width: 860px)").matches;
-  return `<details${open ? " open" : ""}><summary><h4>${escapeHtml(title)}</h4></summary>${content}</details>`;
+  return `<details${open ? " open" : ""}><summary><span class="legend-title">${escapeHtml(title)}</span></summary>${content}</details>`;
 }

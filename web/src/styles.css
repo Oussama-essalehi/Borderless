@@ -211,7 +211,7 @@ details summary { cursor: pointer; padding: 4px 0; }
 .dest-list button:hover, .linklike:hover { text-decoration-color: currentColor; }
 .ranking { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ranking th, .ranking td { padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--hairline); }
-.ranking td.num, .ranking th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ranking td.num, .ranking th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ranking tr.is-selected td { background: var(--surface-2); font-weight: 600; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); font-size: 12px; color: var(--ink-2); }
 select, .field input {

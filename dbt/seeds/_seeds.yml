@@ -12,9 +12,9 @@ seeds:
   - name: country_overrides
     description: Natural Earth features whose ISO_A3 is missing or differs from the code used by the visa data.
   - name: country_attribute_overrides
-    description: Display names and subregions that replace Natural Earth's abbreviations or 'Seven seas' grouping.
+    description: English and French display names and subregions that replace Natural Earth's abbreviations or 'Seven seas' grouping.
     config:
-      column_types: {iso3: varchar, display_name: varchar, subregion: varchar, note: varchar}
+      column_types: {iso3: varchar, display_name: varchar, display_name_fr: varchar, subregion: varchar, note: varchar}
   - name: schengen_area
     description: Schengen members and the date each became a full member.
     config:
@@ -22,6 +22,6 @@ seeds:
   - name: regional_blocs
     description: Reference memberships (as of 2025) of regional blocs with free-movement or visa-waiver arrangements; used only to label detected communities.
   - name: notable_events
-    description: Events shown on the history timeline.
+    description: Events shown on the history timeline, in English and French.
     config:
-      column_types: {event_date: date, kind: varchar, title: varchar, description: varchar}
+      column_types: {event_date: date, kind: varchar, title: varchar, description: varchar, title_fr: varchar, description_fr: varchar}

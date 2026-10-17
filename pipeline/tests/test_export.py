@@ -65,7 +65,7 @@ def test_pipeline_end_to_end_on_fixture_data(settings, tmp_path, monkeypatch):
     ne = settings.raw_dir / "natural_earth" / "countries.ndjson"
     ne.write_text("".join(json.dumps(a) + "\n" for a in feature_attributes({"features": features})))
     load_raw(settings)
-    run_dbt(settings, "build")
+    run_dbt(settings, "build", "--full-refresh")
     run_network(settings)
     export_all(settings)
     changes = export_changes(settings)

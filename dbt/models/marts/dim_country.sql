@@ -25,6 +25,7 @@ blocs as (
 select
     m.iso3,
     coalesce(o.display_name, ne.ne_name, wb.name, m.iso3)       as name,
+    coalesce(o.display_name_fr, ne.ne_name_fr, o.display_name, ne.ne_name, wb.name, m.iso3) as name_fr,
     coalesce(ne.ne_name_long, wb.name)                          as name_long,
     ne.region_un                                                as region,
     coalesce(o.subregion, ne.subregion)                         as subregion,

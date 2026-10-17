@@ -73,7 +73,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.step == "load":
         load_raw(settings)
     elif args.step == "dbt":
-        run_dbt(settings, "build")
+        run_dbt(settings, "build", "--full-refresh")
     elif args.step == "docs":
         run_dbt(settings, "docs", "generate")
     elif args.step == "network":
@@ -85,7 +85,9 @@ def main(argv: list[str] | None = None) -> None:
     elif args.step == "all":
         run_extract(settings, "all", args.force)
         load_raw(settings)
-        run_dbt(settings, "build")
+        # Every model is a table or view and the seeds are tiny, so always rebuild
+        # from scratch: a seed whose columns changed would otherwise fail to load.
+        run_dbt(settings, "build", "--full-refresh")
         run_network(settings)
         export_all(settings)
         export_changes(settings)

@@ -77,4 +77,5 @@ def test_label_communities_names_blocs_and_regions(two_blocs):
     by_label = {l["label"]: l for l in labels.values()}
     assert "WEST" in by_label
     assert by_label["WEST"]["blocs"][0] == {"code": "WEST", "name": "Western bloc", "share_of_bloc": 1.0}
-    assert "East region" in by_label
+    assert by_label["WEST"]["label_parts"] == {"kind": "blocs", "blocs": ["WEST"], "partners": False}
+    assert by_label["East region"]["label_parts"] == {"kind": "region", "subregion": "East region"}

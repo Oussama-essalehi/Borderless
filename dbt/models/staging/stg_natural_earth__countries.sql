@@ -4,6 +4,7 @@ select
     nullif(iso_a3_eh, '-99')        as iso_a3_eh,
     name                            as ne_name,
     name_long                       as ne_name_long,
+    name_fr                         as ne_name_fr,
     admin                           as ne_admin,
     sovereignt                      as sovereign,
     type                            as ne_type,

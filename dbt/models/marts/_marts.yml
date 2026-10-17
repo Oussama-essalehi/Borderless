@@ -8,6 +8,9 @@ models:
         data_tests: [not_null, unique]
       - name: name
         data_tests: [not_null]
+      - name: name_fr
+        description: French display name (Natural Earth NAME_FR unless overridden).
+        data_tests: [not_null]
       - name: region
         description: UN region from Natural Earth (Africa, Americas, Asia, Europe, Oceania).
 

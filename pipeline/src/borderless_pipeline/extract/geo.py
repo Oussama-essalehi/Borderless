@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 SOURCE = "natural_earth"
 
 KEEP_PROPERTIES = (
-    "ADMIN", "NAME", "NAME_LONG", "SOVEREIGNT", "TYPE",
+    "ADMIN", "NAME", "NAME_LONG", "NAME_FR", "SOVEREIGNT", "TYPE",
     "ADM0_A3", "ISO_A3", "ISO_A3_EH", "ISO_A2", "ISO_A2_EH", "WB_A3",
     "CONTINENT", "REGION_UN", "SUBREGION", "REGION_WB",
     "LABEL_X", "LABEL_Y", "POP_EST",

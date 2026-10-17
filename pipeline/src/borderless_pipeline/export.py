@@ -142,7 +142,9 @@ def export_all(settings: Settings) -> dict[str, int]:
 
         # --- meta ------------------------------------------------------------------
         manifest = _rows(con, "select source, url, downloaded_at from raw.source_manifest order by source")
-        events = _rows(con, "select event_date as date, kind, title, description from seeds.notable_events order by 1")
+        events = _rows(con, """
+            select event_date as date, kind, title, description, title_fr, description_fr
+            from seeds.notable_events order by 1""")
         sizes["meta.json"] = write_json(out / "meta.json", {
             "snapshot_date": latest,
             "generated_at": datetime.now(timezone.utc).replace(microsecond=0),
@@ -171,7 +173,7 @@ def export_all(settings: Settings) -> dict[str, int]:
 
         # --- countries -------------------------------------------------------------
         countries = _rows(con, """
-            select c.iso3, c.name, c.region, c.subregion, c.ne_adm0_a3, c.is_schengen, c.blocs,
+            select c.iso3, c.name, c.name_fr, c.region, c.subregion, c.ne_adm0_a3, c.is_schengen, c.blocs,
                    c.income_level, c.label_lon, c.label_lat, c.in_visa_data,
                    w.gdp_per_capita_usd, w.gdp_year, w.hdi, w.hdi_year
             from marts.dim_country c
@@ -183,6 +185,7 @@ def export_all(settings: Settings) -> dict[str, int]:
                 {
                     "iso3": c["iso3"],
                     "name": c["name"],
+                    "name_fr": c["name_fr"],
                     "region": c["region"],
                     "subregion": c["subregion"],
                     "ne": c["ne_adm0_a3"],
@@ -236,7 +239,7 @@ def export_all(settings: Settings) -> dict[str, int]:
             left join analytics.network_communities c using (snapshot_date, iso3)
             where m.snapshot_date = ? order by m.iso3""", [latest])
         labels = _rows(con, """
-            select community_id, label, size, top_subregion, blocs
+            select community_id, label, size, top_subregion, blocs, label_parts
             from analytics.network_community_labels where snapshot_date = ? order by community_id""", [latest])
         sizes["network.json"] = write_json(out / "network.json", {
             "snapshot_date": latest,
@@ -249,7 +252,9 @@ def export_all(settings: Settings) -> dict[str, int]:
             "countries": [
                 {**m, "pagerank": _round(m["pagerank"] * 1000, 3)} for m in metrics
             ],
-            "communities": [{**l, "blocs": json.loads(l["blocs"])} for l in labels],
+            "communities": [
+                {**l, "blocs": json.loads(l["blocs"]), "label_parts": json.loads(l["label_parts"])} for l in labels
+            ],
         })
 
         # --- openness vs wealth -----------------------------------------------------------------

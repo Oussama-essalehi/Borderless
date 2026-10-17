@@ -164,16 +164,22 @@ def label_communities(
         defining.sort(reverse=True)
         region_counts = Counter(subregions.get(n) or "Unknown" for n in nodes)
         top_region, top_count = region_counts.most_common(1)[0]
+        # The label is also exported as parts so the front-end can phrase it in any language.
         if defining:
-            label = " + ".join(code for _, code, _ in defining[:2])
-            covered = len(nodes & set().union(*(blocs[code][1] for _, code, _ in defining[:2])))
-            if covered / len(nodes) < 0.5:
-                label += " and partners"
+            label_blocs = [code for _, code, _ in defining[:2]]
+            covered = len(nodes & set().union(*(blocs[code][1] for code in label_blocs)))
+            parts = {"kind": "blocs", "blocs": label_blocs, "partners": covered / len(nodes) < 0.5}
+            label = " + ".join(label_blocs) + (" and partners" if parts["partners"] else "")
+        elif top_count / len(nodes) >= 0.5:
+            parts = {"kind": "region", "subregion": top_region}
+            label = top_region
         else:
-            label = top_region if top_count / len(nodes) >= 0.5 else f"Mixed, mostly {top_region}"
+            parts = {"kind": "mixed", "subregion": top_region}
+            label = f"Mixed, mostly {top_region}"
         labels[cid] = {
             "community_id": cid,
             "label": label,
+            "label_parts": parts,
             "size": len(nodes),
             "blocs": sorted(contained, key=lambda b: -b["share_of_bloc"]),
             "top_subregion": top_region,
@@ -227,13 +233,17 @@ def run_network(settings: Settings) -> dict[str, int]:
         )
         con.execute(
             "create or replace table analytics.network_community_labels ("
-            "snapshot_date date, community_id integer, label varchar, size integer, top_subregion varchar, blocs json)"
+            "snapshot_date date, community_id integer, label varchar, size integer, top_subregion varchar, "
+            "blocs json, label_parts json)"
         )
         import json
 
         con.executemany(
-            "insert into analytics.network_community_labels values (?, ?, ?, ?, ?, ?)",
-            [(latest, l["community_id"], l["label"], l["size"], l["top_subregion"], json.dumps(l["blocs"])) for l in labels.values()],
+            "insert into analytics.network_community_labels values (?, ?, ?, ?, ?, ?, ?)",
+            [
+                (latest, l["community_id"], l["label"], l["size"], l["top_subregion"], json.dumps(l["blocs"]), json.dumps(l["label_parts"]))
+                for l in labels.values()
+            ],
         )
         con.execute("commit")
     finally:

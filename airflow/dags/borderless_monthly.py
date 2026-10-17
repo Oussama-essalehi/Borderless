@@ -81,7 +81,8 @@ def borderless_monthly():
         execution_config=ExecutionConfig(dbt_executable_path=DBT_EXECUTABLE),
         render_config=RenderConfig(load_method=LoadMode.DBT_LS, test_behavior=TestBehavior.AFTER_EACH),
         # Every dbt task writes to (or reads while others write to) the DuckDB file.
-        operator_args={"pool": DUCKDB_POOL, "install_deps": False},
+        # full_refresh: seeds are reloaded even when their columns change.
+        operator_args={"pool": DUCKDB_POOL, "install_deps": False, "full_refresh": True},
     )
 
     @task(pool=DUCKDB_POOL)

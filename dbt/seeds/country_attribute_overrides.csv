@@ -1,17 +1,17 @@
-iso3,display_name,subregion,note
-ATG,Antigua and Barbuda,,expand abbreviated Natural Earth name
-BIH,Bosnia and Herzegovina,,expand abbreviated Natural Earth name
-CAF,Central African Republic,,expand abbreviated Natural Earth name
-COD,DR Congo,,disambiguate from the Republic of the Congo
-COG,Republic of the Congo,,disambiguate from DR Congo
-DOM,Dominican Republic,,expand abbreviated Natural Earth name
-GNQ,Equatorial Guinea,,expand abbreviated Natural Earth name
-KNA,Saint Kitts and Nevis,,expand abbreviated Natural Earth name
-MHL,Marshall Islands,,expand abbreviated Natural Earth name
-SLB,Solomon Islands,,expand abbreviated Natural Earth name
-SSD,South Sudan,,expand abbreviated Natural Earth name
-VCT,Saint Vincent and the Grenadines,,expand abbreviated Natural Earth name
-USA,United States,,shorter display name
-MDV,,Southern Asia,Natural Earth files island states under 'Seven seas (open ocean)'
-MUS,,Eastern Africa,Natural Earth files island states under 'Seven seas (open ocean)'
-SYC,,Eastern Africa,Natural Earth files island states under 'Seven seas (open ocean)'
+iso3,display_name,display_name_fr,subregion,note
+ATG,Antigua and Barbuda,,,expand abbreviated Natural Earth name
+BIH,Bosnia and Herzegovina,,,expand abbreviated Natural Earth name
+CAF,Central African Republic,,,expand abbreviated Natural Earth name
+COD,DR Congo,RD Congo,,disambiguate from the Republic of the Congo
+COG,Republic of the Congo,,,disambiguate from DR Congo
+DOM,Dominican Republic,,,expand abbreviated Natural Earth name
+GNQ,Equatorial Guinea,,,expand abbreviated Natural Earth name
+KNA,Saint Kitts and Nevis,,,expand abbreviated Natural Earth name
+MHL,Marshall Islands,,,expand abbreviated Natural Earth name
+SLB,Solomon Islands,,,expand abbreviated Natural Earth name
+SSD,South Sudan,,,expand abbreviated Natural Earth name
+VCT,Saint Vincent and the Grenadines,,,expand abbreviated Natural Earth name
+USA,United States,,,shorter display name
+MDV,,,Southern Asia,Natural Earth files island states under 'Seven seas (open ocean)'
+MUS,,,Eastern Africa,Natural Earth files island states under 'Seven seas (open ocean)'
+SYC,,,Eastern Africa,Natural Earth files island states under 'Seven seas (open ocean)'

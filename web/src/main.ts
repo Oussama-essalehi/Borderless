@@ -11,6 +11,7 @@ import { reciprocityView } from "./views/reciprocity";
 import { communityView } from "./views/community";
 import { comboView } from "./views/combo";
 import { renderInsightsTab } from "./tabs/insights";
+import { renderWealthTab } from "./tabs/wealth";
 
 async function main(): Promise<void> {
   const [data, topo] = await Promise.all([
@@ -24,6 +25,7 @@ async function main(): Promise<void> {
   app.registerView(communityView);
   app.registerTab({ id: "passport", label: "Passport", render: renderPassportTab });
   app.registerTab({ id: "insights", label: "Insights", render: renderInsightsTab });
+  app.registerTab({ id: "wealth", label: "Wealth", render: renderWealthTab });
 
   setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());
   setupSearch(app);

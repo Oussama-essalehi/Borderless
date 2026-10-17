@@ -1,0 +1,121 @@
+# Local Airflow for the Borderless pipeline.
+# LocalExecutor + Postgres metadata DB. The repo's dbt project, pipeline package,
+# DuckDB warehouse and the front-end data folder are bind-mounted so the host
+# (`make data`) and the Airflow containers share the same files.
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: docker/airflow/Dockerfile
+  image: borderless-airflow:latest
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-apiserver:8080/execution/
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:-borderless-local-only}
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    # Project paths inside the containers
+    BORDERLESS_HOME: /opt/borderless
+    BORDERLESS_RAW_DIR: /opt/borderless/pipeline/raw
+    BORDERLESS_DUCKDB_PATH: /opt/borderless/pipeline/warehouse/borderless.duckdb
+    BORDERLESS_WEB_DATA_DIR: /opt/borderless/web/public/data
+    DBT_PROJECT_DIR: /opt/borderless/dbt
+    DBT_PROFILES_DIR: /opt/borderless/dbt
+    DBT_EXECUTABLE: /opt/dbt-venv/bin/dbt
+    PYTHONPATH: /opt/borderless/pipeline/src
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    # Shared between every Airflow container and the host
+    - ./dbt:/opt/borderless/dbt
+    - ./pipeline:/opt/borderless/pipeline
+    - ./web/public/data:/opt/borderless/web/public/data
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on: &airflow-common-depends-on
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /opt/airflow/logs /opt/borderless/pipeline/raw /opt/borderless/pipeline/warehouse /opt/borderless/web/public/data
+        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/logs /opt/borderless/pipeline/raw /opt/borderless/pipeline/warehouse /opt/borderless/web/public/data
+        /entrypoint airflow db migrate
+        # A single slot: every task that writes to the DuckDB file runs one at a time.
+        /entrypoint airflow pools set duckdb_writer 1 "Serialises writes to the DuckDB warehouse"
+    environment:
+      <<: *airflow-common-env
+    user: "0:0"
+
+  airflow-apiserver:
+    <<: *airflow-common
+    command: api-server
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-db-volume:

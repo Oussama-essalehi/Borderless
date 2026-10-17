@@ -1,0 +1,160 @@
+version: 2
+
+models:
+  - name: dim_country
+    description: Country dimension (one row per ISO-3 code) with display name, UN region and subregion, World Bank income group, Schengen membership and regional blocs.
+    columns:
+      - name: iso3
+        data_tests: [not_null, unique]
+      - name: name
+        data_tests: [not_null]
+      - name: region
+        description: UN region from Natural Earth (Africa, Americas, Asia, Europe, Oceania).
+
+  - name: dim_snapshot
+    description: Visa snapshots in time order with provenance and methodology flags.
+    columns:
+      - name: snapshot_date
+        data_tests: [not_null, unique]
+
+  - name: visa_access
+    description: Harmonised passport x destination access for every snapshot.
+    columns:
+      - name: category
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [visa_free, visa_on_arrival, eta, e_visa, visa_required, no_admission, home]
+      - name: passport_iso3
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+      - name: destination_iso3
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+
+  - name: passport_scores
+    description: >
+      Destinations per access category for each passport and snapshot.
+      visa_free_score = visa-free + visa on arrival (comparable across all snapshots);
+      mobility_score adds ETAs and is only meaningful once ETAs are a separate category.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, passport_iso3]
+    columns:
+      - name: passport_iso3
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+      - name: visa_free_score
+        data_tests:
+          - not_null
+          - value_between:
+              arguments:
+                min_value: 0
+                max_value: 250
+      - name: world_rank
+        data_tests: [not_null]
+
+  - name: reciprocity
+    description: Pair-level comparison of the access a country's citizens get abroad with the access it grants back.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, country_iso3, partner_iso3]
+    columns:
+      - name: relation
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [symmetric, favorable, unfavorable]
+      - name: country_iso3
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+      - name: partner_iso3
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+
+  - name: fairness_scores
+    description: Share of symmetric relationships and the direction of the asymmetric ones, per country and snapshot.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, country_iso3]
+    columns:
+      - name: fairness_score
+        data_tests:
+          - not_null
+          - value_between:
+              arguments:
+                min_value: 0
+                max_value: 100
+      - name: reciprocity_balance
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: -1
+                max_value: 1
+
+  - name: openness_vs_wealth
+    description: Latest snapshot. Visa-free score and openness next to GDP per capita (log10) and HDI, with fitted values, residuals and Pearson correlations.
+    columns:
+      - name: iso3
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3
+
+  - name: snapshot_changes
+    description: Every pair whose category or allowed stay changed between two consecutive snapshots.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, passport_iso3, destination_iso3]
+    columns:
+      - name: change_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [new_eta, eta_removed, gained_visa_free, lost_visa_free, eased, tightened, stay_changed]
+
+  - name: trip_planner
+    description: Latest snapshot. Destinations reachable without advance application (visa-free or visa on arrival), with region and allowed stay.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [passport_iso3, destination_iso3]
+    columns:
+      - name: category
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [visa_free, visa_on_arrival]
+      - name: destination_iso3
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: iso3

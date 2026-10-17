@@ -41,6 +41,8 @@ describe("translations", () => {
     expect(ordinal(8)).toBe("8e");
     expect(percent(76.8, 1)).toBe("76,8 %");
     expect(colon()).toBe(" : ");
+    // Non-breaking space before French "?" so it never starts a line.
+    expect(t("wel.q2")).toBe("Les pays rendent-ils l'accès qu'ils obtiennent\u00a0?");
     expect(regionName("Western Africa")).toBe("Afrique de l'Ouest");
     expect(blocShort("ECOWAS")).toBe("CEDEAO");
     use("en");

@@ -41,3 +41,4 @@ web/dist/
 web/.vite/
 web/test-results/
 web/playwright-report/
+web/.ne_50m_admin_0_countries.geojson

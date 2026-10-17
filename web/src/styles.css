@@ -354,3 +354,4 @@ select, .field input {
 .legend-inline span { display: inline-flex; align-items: center; gap: 4px; }
 .legend-inline .dash { width: 14px; height: 0; border-top: 2px dashed var(--muted); }
 #metric-switch { margin: 6px 0; flex-wrap: wrap; border-radius: 12px; }
+.check { display: flex; align-items: center; gap: 6px; margin: 8px 0; font-size: 13px; }

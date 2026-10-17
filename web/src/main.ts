@@ -9,6 +9,7 @@ import { renderPassportTab } from "./tabs/passport";
 import { accessView } from "./views/access";
 import { reciprocityView } from "./views/reciprocity";
 import { communityView } from "./views/community";
+import { comboView } from "./views/combo";
 import { renderInsightsTab } from "./tabs/insights";
 
 async function main(): Promise<void> {
@@ -19,6 +20,7 @@ async function main(): Promise<void> {
   const app = new App(data, topo);
   app.registerView(accessView);
   app.registerView(reciprocityView);
+  app.registerView(comboView);
   app.registerView(communityView);
   app.registerTab({ id: "passport", label: "Passport", render: renderPassportTab });
   app.registerTab({ id: "insights", label: "Insights", render: renderInsightsTab });

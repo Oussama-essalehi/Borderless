@@ -96,7 +96,7 @@ export class App {
 
   selectPassport(iso3: string): void {
     const { state } = this.store;
-    if (state.view === "combo" && state.passport && state.passport !== iso3 && !state.second) {
+    if (state.view === "combo" && state.passport && state.passport !== iso3) {
       this.store.set({ second: iso3, focus: null });
     } else {
       this.store.set({ passport: iso3, focus: null });
@@ -180,7 +180,11 @@ export class App {
     if (this.els.views.innerHTML !== html) {
       this.els.views.innerHTML = html;
       this.els.views.querySelectorAll<HTMLButtonElement>("button").forEach((b) =>
-        b.addEventListener("click", () => this.store.set({ view: b.dataset.view as View })),
+        b.addEventListener("click", () => {
+          const view = b.dataset.view as View;
+          // The two-passport controls live in the Passport tab.
+          this.store.set(view === "combo" ? { view, tab: "passport" } : { view });
+        }),
       );
     }
     this.els.views.hidden = this.views.size < 2;

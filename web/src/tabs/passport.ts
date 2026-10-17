@@ -3,11 +3,16 @@ import { CATEGORY_LABEL, CATEGORY_ORDER, categoryColor, escapeHtml, formatDate, 
 import type { CategoryKey } from "../types";
 import { reciprocityPanel } from "./reciprocity";
 import { historySection } from "./history";
+import { renderComboTab } from "./combo";
 
 export function renderPassportTab(app: App, body: HTMLElement): void {
   const { state } = app.store;
   const matrix = app.matrix;
   if (!matrix) return;
+  if (state.view === "combo") {
+    renderComboTab(app, body);
+    return;
+  }
 
   if (!state.passport) {
     const ranking = app.data

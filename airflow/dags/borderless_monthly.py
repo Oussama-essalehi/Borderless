@@ -2,6 +2,8 @@
 
 extract (visa, World Bank, HDI, Natural Earth) -> load raw into DuckDB
 -> dbt (one Airflow task per seed, model and test, via Cosmos) -> dbt docs
+-> network metrics (networkx) -> export JSON to web/public/data
+-> changes since the previous snapshot
 
 Extract tasks only write files, so they run in parallel. Every task that
 writes to the DuckDB file uses the single-slot `duckdb_writer` pool.
@@ -89,8 +91,31 @@ def borderless_monthly():
 
         run_dbt(get_settings(), "docs", "generate")
 
+    @task(pool=DUCKDB_POOL)
+    def network_metrics() -> dict:
+        from borderless_pipeline.config import get_settings
+        from borderless_pipeline.network import run_network
+
+        return run_network(get_settings())
+
+    @task(pool=DUCKDB_POOL)
+    def export_json() -> dict:
+        from borderless_pipeline.config import get_settings
+        from borderless_pipeline.export import export_all
+
+        sizes = export_all(get_settings())
+        return {"files": len(sizes), "bytes": sum(sizes.values())}
+
+    @task(pool=DUCKDB_POOL)
+    def generate_changes() -> dict:
+        from borderless_pipeline.config import get_settings
+        from borderless_pipeline.export import export_changes
+
+        result = export_changes(get_settings())
+        return {k: str(v) for k, v in result.items()}
+
     extracts = [extract_visa(), extract_worldbank(), extract_hdi(), extract_natural_earth()]
-    extracts >> load_raw() >> dbt >> dbt_docs()
+    extracts >> load_raw() >> dbt >> dbt_docs() >> network_metrics() >> export_json() >> generate_changes()
 
 
 borderless_monthly()

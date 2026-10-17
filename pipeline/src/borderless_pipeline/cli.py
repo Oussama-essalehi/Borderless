@@ -18,7 +18,9 @@ from .extract.geo import extract_geo
 from .extract.hdi import extract_hdi
 from .extract.visa import extract_visa
 from .extract.worldbank import extract_worldbank
+from .export import export_all, export_changes
 from .load import load_raw
+from .network import run_network
 
 EXTRACTORS = {
     "visa": extract_visa,
@@ -56,6 +58,9 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("load", help="load raw files into DuckDB")
     sub.add_parser("dbt", help="dbt build (seeds, models, tests)")
     sub.add_parser("docs", help="dbt docs generate")
+    sub.add_parser("network", help="networkx metrics and communities")
+    sub.add_parser("export", help="export marts to web/public/data")
+    sub.add_parser("changes", help="write changes.json for the two latest snapshots")
     p_all = sub.add_parser("all", help="run every step (what `make data` calls)")
     p_all.add_argument("--force", action="store_true", help="ignore the raw cache")
     args = parser.parse_args(argv)
@@ -71,10 +76,19 @@ def main(argv: list[str] | None = None) -> None:
         run_dbt(settings, "build")
     elif args.step == "docs":
         run_dbt(settings, "docs", "generate")
+    elif args.step == "network":
+        run_network(settings)
+    elif args.step == "export":
+        export_all(settings)
+    elif args.step == "changes":
+        export_changes(settings)
     elif args.step == "all":
         run_extract(settings, "all", args.force)
         load_raw(settings)
         run_dbt(settings, "build")
+        run_network(settings)
+        export_all(settings)
+        export_changes(settings)
 
 
 if __name__ == "__main__":

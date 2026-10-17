@@ -50,7 +50,7 @@ flowchart LR
         NE["Natural Earth<br/>admin-0 1:50m"]
     end
 
-    subgraph Airflow["Airflow DAG · monthly (or `make data`)"]
+    subgraph Airflow["Airflow DAG · monthly (or make data)"]
         EX["extract_*<br/>raw files + manifest"] --> LOAD["load_raw<br/>DuckDB raw schema"]
         LOAD --> DBT["dbt via Cosmos<br/>staging → intermediate → marts<br/>(one task per model and test)"]
         DBT --> DOCS["dbt docs"]

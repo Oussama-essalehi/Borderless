@@ -4,7 +4,8 @@
 Click a country to see where its passport takes you, how that changed through COVID-19 and the new
 electronic travel authorisations, who gives back what they get, and which countries form visa blocs.
 
-**Live demo:** _coming soon_ <!-- replace with the hosted URL -->
+**Live demo: [borderless-tawny.vercel.app](https://borderless-tawny.vercel.app)**
+(also in French: [borderless-tawny.vercel.app/?lang=fr](https://borderless-tawny.vercel.app/?lang=fr))
 
 ![Borderless demo](docs/screenshots/demo.gif)
 
@@ -228,6 +229,22 @@ The exported JSON is committed, so the front-end runs without the pipeline. `web
 files with relative paths: it can be served from a domain root or a sub-folder by any static host. The
 first load is about 410 KB gzipped (most of it MapLibre). Older snapshots (about 13 KB each) and the
 secondary tabs load only when needed.
+
+### Hosting and data updates
+
+The live site is hosted on [Vercel](https://borderless-tawny.vercel.app), connected to this repository
+with these settings: root directory `web`, framework Vite, build command `npm run build`, output
+directory `dist`, Node.js 22. Every push to `main` redeploys it.
+
+Vercel only serves the JSON committed in `web/public/data`; it doesn't run the pipeline. To publish new
+data I run the pipeline (`make data` or the Airflow DAG), then commit and push the exported files:
+
+```bash
+make data
+git add web/public/data
+git commit -m "data: refresh snapshot"
+git push    # Vercel redeploys with the new data
+```
 
 ## Project structure
 

@@ -1,6 +1,7 @@
 """Borderless monthly pipeline.
 
 extract (visa, World Bank, HDI, Natural Earth) -> load raw into DuckDB
+-> dbt (one Airflow task per seed, model and test, via Cosmos) -> dbt docs
 
 Extract tasks only write files, so they run in parallel. Every task that
 writes to the DuckDB file uses the single-slot `duckdb_writer` pool.
@@ -8,10 +9,17 @@ writes to the DuckDB file uses the single-slot `duckdb_writer` pool.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import pendulum
 from airflow.sdk import dag, task
+from cosmos import DbtTaskGroup, ExecutionConfig, ProfileConfig, ProjectConfig, RenderConfig
+from cosmos.constants import LoadMode, TestBehavior
 
 DUCKDB_POOL = "duckdb_writer"
+DBT_PROJECT_DIR = Path(os.environ.get("DBT_PROJECT_DIR", "/opt/borderless/dbt"))
+DBT_EXECUTABLE = os.environ.get("DBT_EXECUTABLE", "/opt/dbt-venv/bin/dbt")
 
 
 @dag(
@@ -60,7 +68,29 @@ def borderless_monthly():
 
         return load_raw(get_settings())
 
-    [extract_visa(), extract_worldbank(), extract_hdi(), extract_natural_earth()] >> load_raw()
+    dbt = DbtTaskGroup(
+        group_id="dbt",
+        project_config=ProjectConfig(dbt_project_path=DBT_PROJECT_DIR),
+        profile_config=ProfileConfig(
+            profile_name="borderless",
+            target_name="dev",
+            profiles_yml_filepath=DBT_PROJECT_DIR / "profiles.yml",
+        ),
+        execution_config=ExecutionConfig(dbt_executable_path=DBT_EXECUTABLE),
+        render_config=RenderConfig(load_method=LoadMode.DBT_LS, test_behavior=TestBehavior.AFTER_EACH),
+        # Every dbt task writes to (or reads while others write to) the DuckDB file.
+        operator_args={"pool": DUCKDB_POOL, "install_deps": False},
+    )
+
+    @task(pool=DUCKDB_POOL)
+    def dbt_docs() -> None:
+        from borderless_pipeline.cli import run_dbt
+        from borderless_pipeline.config import get_settings
+
+        run_dbt(get_settings(), "docs", "generate")
+
+    extracts = [extract_visa(), extract_worldbank(), extract_hdi(), extract_natural_earth()]
+    extracts >> load_raw() >> dbt >> dbt_docs()
 
 
 borderless_monthly()

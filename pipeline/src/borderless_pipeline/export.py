@@ -205,7 +205,8 @@ def export_all(settings: Settings) -> dict[str, int]:
         dates = [s["snapshot_date"] for s in snapshots]
         date_pos = {d: i for i, d in enumerate(dates)}
         series: dict[str, dict[str, list]] = {}
-        for r in _rows(con, "select snapshot_date, passport_iso3, visa_free_score, world_rank, mobility_score from marts.passport_scores"):
+        for r in _rows(con, "select snapshot_date, passport_iso3, visa_free_score, world_rank, mobility_score "
+                         "from marts.passport_scores order by passport_iso3, snapshot_date"):
             entry = series.setdefault(r["passport_iso3"], {
                 "score": [None] * len(dates), "rank": [None] * len(dates), "mobility": [None] * len(dates)})
             i = date_pos[r["snapshot_date"]]

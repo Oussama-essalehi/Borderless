@@ -8,6 +8,8 @@ import { setupTimeline } from "./timeline";
 import { renderPassportTab } from "./tabs/passport";
 import { accessView } from "./views/access";
 import { reciprocityView } from "./views/reciprocity";
+import { communityView } from "./views/community";
+import { renderInsightsTab } from "./tabs/insights";
 
 async function main(): Promise<void> {
   const [data, topo] = await Promise.all([
@@ -17,7 +19,9 @@ async function main(): Promise<void> {
   const app = new App(data, topo);
   app.registerView(accessView);
   app.registerView(reciprocityView);
+  app.registerView(communityView);
   app.registerTab({ id: "passport", label: "Passport", render: renderPassportTab });
+  app.registerTab({ id: "insights", label: "Insights", render: renderInsightsTab });
 
   setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());
   setupSearch(app);

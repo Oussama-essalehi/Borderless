@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: int_country_mapping
+    description: >
+      Canonical ISO-3 codes across the visa data, Natural Earth, World Bank and UNDP,
+      with source coverage flags. Natural Earth quirks (France and Norway coded -99,
+      Kosovo as KOS) are fixed by the `country_overrides` seed.
+    columns:
+      - name: iso3
+        data_tests: [not_null, unique]
+      - name: ne_adm0_a3
+        data_tests: [unique]
+
+  - name: int_snapshots
+    description: One row per visa snapshot with its value format, position in the timeline and methodology flags.
+    columns:
+      - name: snapshot_date
+        data_tests: [not_null, unique]
+      - name: value_format
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [numeric_code, short_code, label]
+
+  - name: int_visa_matrix
+    description: >
+      Complete passport x destination matrix for every snapshot with a harmonised
+      access category. Day counts are kept when the source gives them.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, passport_iso3, destination_iso3]
+    columns:
+      - name: category
+        description: Harmonised access category; every raw value must map to one.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [visa_free, visa_on_arrival, eta, e_visa, visa_required, no_admission, home]
+      - name: passport_iso3
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_country_mapping')
+                field: iso3
+      - name: destination_iso3
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('int_country_mapping')
+                field: iso3
+      - name: visa_free_days
+        data_tests:
+          - value_between:
+              arguments:
+                min_value: 1
+                max_value: 366
+
+  - name: int_snapshot_history
+    description: Pair-level access with the value from the previous snapshot, for change detection.

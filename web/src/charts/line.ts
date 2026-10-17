@@ -3,6 +3,7 @@ import { max, min } from "d3-array";
 import { scaleLinear, scaleUtc } from "d3-scale";
 import { select } from "d3-selection";
 import { line } from "d3-shape";
+import { t } from "../i18n";
 import { escapeHtml, formatDate } from "../format";
 import type { EventInfo } from "../types";
 
@@ -29,7 +30,9 @@ const parse = (iso: string) => new Date(`${iso}T00:00:00Z`);
 export function renderLineChart(el: HTMLElement, spec: LineChartSpec): void {
   const width = Math.max(260, el.clientWidth || 320);
   const height = 170;
-  const m = { top: 12, right: 64, bottom: 22, left: 34 };
+  // Room on the right for the direct labels at the end of each line.
+  const longest = Math.max(...spec.series.map((s) => s.label.length));
+  const m = { top: 12, right: Math.min(130, 14 + longest * 6.2), bottom: 22, left: 34 };
   const x = scaleUtc()
     .domain([parse(spec.dates[0]), parse(spec.dates[spec.dates.length - 1])])
     .range([m.left, width - m.right]);
@@ -47,7 +50,7 @@ export function renderLineChart(el: HTMLElement, spec: LineChartSpec): void {
     .attr("width", width)
     .attr("height", height)
     .attr("role", "img")
-    .attr("aria-label", `${spec.yLabel} over time`);
+    .attr("aria-label", t("chart.overTime", { y: spec.yLabel }));
 
   if (spec.band) {
     svg.append("rect")

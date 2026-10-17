@@ -1,16 +1,17 @@
 import type { App } from "../app";
 import { escapeHtml, formatDate, swatch } from "../format";
-import { communitySlot, loadNetwork, type NetworkCountry } from "../network";
+import { blocName, formatNumber, percent, t, type Key } from "../i18n";
+import { communityLabel, communitySlot, loadNetwork, type NetworkCountry } from "../network";
 import { cssVar } from "../theme";
 import { fairnessFor } from "../views/reciprocity";
 
 type Metric = "passport_power" | "openness" | "pagerank" | "fairness";
 
-const METRICS: { id: Metric; label: string; help: string }[] = [
-  { id: "passport_power", label: "Passport power", help: "Weighted out-degree: how easily this passport's holders get into every other country (100 = visa-free everywhere)." },
-  { id: "openness", label: "Openness", help: "Weighted in-degree: how easily every other passport gets in (100 = visa-free for everyone)." },
-  { id: "pagerank", label: "Centrality", help: "PageRank on the access graph (×1000): high when a country is easy to reach from passports that are themselves easy to reach." },
-  { id: "fairness", label: "Fairness", help: "Share of relationships where both sides grant the same tier of access." },
+const METRICS: { id: Metric; label: Key; help: Key }[] = [
+  { id: "passport_power", label: "insights.power", help: "insights.powerHelp" },
+  { id: "openness", label: "insights.openness", help: "insights.opennessHelp" },
+  { id: "pagerank", label: "insights.centrality", help: "insights.centralityHelp" },
+  { id: "fairness", label: "insights.fairness", help: "insights.fairnessHelp" },
 ];
 
 let metric: Metric = "passport_power";
@@ -25,22 +26,21 @@ export async function renderInsightsTab(app: App, body: HTMLElement): Promise<vo
   const rankOf = new Map(sorted.map((c, i) => [c.iso3, i + 1]));
   const rows = sorted.slice(0, 20);
   if (passport && rankOf.get(passport)! > 20) rows.push(sorted[rankOf.get(passport)! - 1]);
-  const fmt = (v: number) => (metric === "fairness" ? `${v.toFixed(1)}%` : metric === "pagerank" ? v.toFixed(2) : v.toFixed(1));
-  const help = METRICS.find((m) => m.id === metric)!.help;
+  const fmt = (v: number) => (metric === "fairness" ? percent(v, 1) : formatNumber(v, metric === "pagerank" ? 2 : 1));
+  const current = METRICS.find((m) => m.id === metric)!;
   const stale = metric !== "fairness" && date !== network.snapshot_date;
+  const w = network.method.edge_weights;
+  const num = (v: number) => formatNumber(v, 1);
 
   body.innerHTML = `
-    <h2>Network insights</h2>
-    <p class="subtle">Visa access as a directed graph: an edge from passport to destination, weighted by ease of entry
-      (visa-free ${network.method.edge_weights.visa_free}, on arrival ${network.method.edge_weights.visa_on_arrival},
-      ETA ${network.method.edge_weights.eta}, e-visa ${network.method.edge_weights.e_visa},
-      visa required ${network.method.edge_weights.visa_required}, no admission: no edge).</p>
-    <div class="views" role="group" aria-label="Ranking" id="metric-switch">
-      ${METRICS.map((m) => `<button type="button" aria-pressed="${m.id === metric}" data-metric="${m.id}">${m.label}</button>`).join("")}
+    <h2>${escapeHtml(t("insights.title"))}</h2>
+    <p class="subtle">${escapeHtml(t("insights.method", { vf: num(w.visa_free), voa: num(w.visa_on_arrival), eta: num(w.eta), ev: num(w.e_visa), vr: num(w.visa_required) }))}</p>
+    <div class="views" role="group" aria-label="${escapeHtml(t("insights.rankingLabel"))}" id="metric-switch">
+      ${METRICS.map((m) => `<button type="button" aria-pressed="${m.id === metric}" data-metric="${m.id}">${escapeHtml(t(m.label))}</button>`).join("")}
     </div>
-    <p class="subtle">${escapeHtml(help)}${stale ? ` Computed for the ${escapeHtml(formatDate(network.snapshot_date))} snapshot.` : ""}</p>
+    <p class="subtle">${escapeHtml(t(current.help))}${stale ? ` ${escapeHtml(t("insights.computedFor", { date: formatDate(network.snapshot_date) }))}` : ""}</p>
     <table class="ranking">
-      <thead><tr><th class="num">#</th><th>Country</th><th class="num">${escapeHtml(METRICS.find((m) => m.id === metric)!.label)}</th></tr></thead>
+      <thead><tr><th class="num">#</th><th>${escapeHtml(t("recip.country"))}</th><th class="num">${escapeHtml(t(current.label))}</th></tr></thead>
       <tbody>${rows
         .map((c) => `<tr class="${c.iso3 === passport ? "is-selected" : ""}"><td class="num">${rankOf.get(c.iso3)}</td>
           <td><button type="button" class="linklike" data-iso="${c.iso3}">${escapeHtml(app.data.name(c.iso3))}</button></td>
@@ -48,25 +48,23 @@ export async function renderInsightsTab(app: App, body: HTMLElement): Promise<vo
         .join("")}</tbody>
     </table>
 
-    <h3>Visa blocs</h3>
-    <p class="subtle">Louvain community detection on mutual access (each pair weighted by the weaker direction), split
-      recursively while the split still has a modularity of at least ${network.method.min_split_modularity}. Labels name
-      the reference blocs a community contains.</p>
-    <button type="button" class="linklike" id="show-blocs">${app.store.state.view === "community" ? "Blocs are shown on the map" : "Show blocs on the map"}</button>
+    <h3>${escapeHtml(t("insights.blocs"))}</h3>
+    <p class="subtle">${escapeHtml(t("insights.blocsMethod", { q: formatNumber(network.method.min_split_modularity, 2) }))}</p>
+    <button type="button" class="linklike" id="show-blocs">${escapeHtml(t(app.store.state.view === "community" ? "insights.blocsShown" : "insights.showBlocs"))}</button>
     ${network.communities
       .map((c) => {
-        const members = network.countries.filter((m) => m.community_id === c.community_id).map((m) => m.iso3)
-          .sort((a, b) => app.data.name(a).localeCompare(app.data.name(b)));
+        const members = network.countries.filter((m) => m.community_id === c.community_id).map((m) => m.iso3).sort(app.data.byName);
+        const contains = c.blocs
+          .map((b) => t("insights.ofMembers", { name: blocName(b.code, b.name), pct: percent(b.share_of_bloc * 100) }))
+          .join(", ");
         return `<details>
-          <summary>${swatch(cssVar(communitySlot(c.community_id)))} <strong>${escapeHtml(c.label)}</strong> <span class="subtle">${c.size} countries</span></summary>
-          ${c.blocs.length ? `<p class="subtle">Contains ${c.blocs.map((b) => `${escapeHtml(b.name)} (${Math.round(b.share_of_bloc * 100)}% of members)`).join(", ")}.</p>` : ""}
+          <summary>${swatch(cssVar(communitySlot(c.community_id)))} <strong>${escapeHtml(communityLabel(c))}</strong> <span class="subtle">${escapeHtml(t("insights.countries", { n: c.size }))}</span></summary>
+          ${c.blocs.length ? `<p class="subtle">${escapeHtml(t("insights.contains", { list: contains }))}</p>` : ""}
           <ul class="dest-list">${members.map((m) => `<li><button type="button" data-iso="${m}">${escapeHtml(app.data.name(m))}</button></li>`).join("")}</ul>
         </details>`;
       })
       .join("")}
-    <p class="note">Communities are a lens, not a treaty map: a country lands in the group it shares the most mutual
-      visa-free access with. Mercosur, for instance, sits inside the wider visa-free club around Schengen because its
-      members are open to Europe as well as to each other.</p>`;
+    <p class="note">${escapeHtml(t("insights.note"))}</p>`;
 
   body.querySelectorAll<HTMLButtonElement>("[data-metric]").forEach((b) =>
     b.addEventListener("click", () => {

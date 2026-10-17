@@ -1,3 +1,4 @@
+import { lang, locale } from "./i18n";
 import { Matrix } from "./matrix";
 import type { Country, Meta, ScoresFile, SnapshotFile } from "./types";
 
@@ -58,14 +59,20 @@ export class DataStore {
     return this.matrices.get(date)!;
   }
 
+  /** Country name in the current language. */
   name(iso3: string | null | undefined): string {
     if (!iso3) return "";
-    return this.byIso.get(iso3)?.name ?? iso3;
+    const country = this.byIso.get(iso3);
+    if (!country) return iso3;
+    return lang() === "fr" ? country.name_fr || country.name : country.name;
   }
+
+  /** Compare two ISO-3 codes by their name in the current language. */
+  byName = (a: string, b: string): number => this.name(a).localeCompare(this.name(b), locale());
 
   /** Countries that hold passports in the visa data, sorted by name. */
   passports(): Country[] {
-    return this.countries.filter((c) => c.visa_data).sort((a, b) => a.name.localeCompare(b.name));
+    return this.countries.filter((c) => c.visa_data).sort((a, b) => this.byName(a.iso3, b.iso3));
   }
 
   rank(iso3: string, date: string): { score: number | null; rank: number | null; of: number } {

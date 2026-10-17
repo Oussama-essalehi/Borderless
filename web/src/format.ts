@@ -1,34 +1,29 @@
 import type { Access, CategoryKey } from "./types";
+import { lang, locale, t, type Key } from "./i18n";
 import { cssVar } from "./theme";
 
 export const CATEGORY_ORDER: CategoryKey[] = [
   "visa_free", "visa_on_arrival", "eta", "e_visa", "visa_required", "no_admission",
 ];
 
-export const CATEGORY_LABEL: Record<CategoryKey, string> = {
-  visa_free: "Visa-free",
-  visa_on_arrival: "Visa on arrival",
-  eta: "ETA",
-  e_visa: "e-Visa",
-  visa_required: "Visa required",
-  no_admission: "No admission",
-  home: "Home country",
-};
+export function categoryLabel(category: CategoryKey): string {
+  return t(`cat.${category}` as Key);
+}
 
-export const DETAIL_LABEL: Record<string, string> = {
-  covid_ban: "COVID-19 entry ban",
-  hayya_entry_permit: "Hayya entry permit (World Cup 2022)",
-  uk_electronic_visa_waiver: "UK electronic visa waiver",
-  voa_eta_or_e_visa: "Approximate: before November 2020 the source used one bucket for visa on arrival, ETA and e-visa",
-};
+export function detailLabel(detail: string | null): string | null {
+  if (!detail) return null;
+  const key = `detail.${detail}` as Key;
+  const text = t(key);
+  return text === key ? null : text;
+}
 
 export function categoryColor(category: CategoryKey): string {
   return cssVar(`--c-${category}`);
 }
 
 export function describeAccess(access: Access): string {
-  let text = CATEGORY_LABEL[access.category];
-  if (access.category === "visa_free" && access.days) text += ` · up to ${access.days} days`;
+  let text = categoryLabel(access.category);
+  if (access.category === "visa_free" && access.days) text += ` · ${t("cat.daysUpTo", { days: access.days })}`;
   return text;
 }
 
@@ -38,7 +33,7 @@ export function escapeHtml(value: string): string {
 
 export function formatDate(iso: string, style: "long" | "short" = "long"): string {
   const date = new Date(`${iso}T00:00:00Z`);
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString(locale(), {
     day: style === "long" ? "numeric" : undefined,
     month: style === "long" ? "long" : "short",
     year: "numeric",
@@ -47,6 +42,7 @@ export function formatDate(iso: string, style: "long" | "short" = "long"): strin
 }
 
 export function ordinal(n: number): string {
+  if (lang() === "fr") return n === 1 ? "1er" : `${n}e`;
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;

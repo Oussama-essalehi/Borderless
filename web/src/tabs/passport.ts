@@ -1,5 +1,6 @@
 import type { App } from "../app";
-import { CATEGORY_LABEL, CATEGORY_ORDER, categoryColor, escapeHtml, formatDate, ordinal, swatch } from "../format";
+import { CATEGORY_ORDER, categoryColor, categoryLabel, escapeHtml, formatDate, ordinal, swatch } from "../format";
+import { regionName, t } from "../i18n";
 import type { CategoryKey } from "../types";
 import { reciprocityPanel } from "./reciprocity";
 import { historySection } from "./history";
@@ -15,29 +16,26 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
   }
 
   if (!state.passport) {
+    if (state.view === "reciprocity") {
+      body.innerHTML = `<h2>${escapeHtml(t("recip.introTitle"))}</h2>
+        <p class="empty">${escapeHtml(t("recip.intro"))}</p>${reciprocityPanel(app)}`;
+      app.bindCountryLinks(body);
+      return;
+    }
     const ranking = app.data
       .passports()
       .map((c) => ({ c, ...app.data.rank(c.iso3, state.date) }))
       .filter((r) => r.rank !== null)
-      .sort((a, b) => a.rank! - b.rank! || a.c.name.localeCompare(b.c.name))
+      .sort((a, b) => a.rank! - b.rank! || app.data.byName(a.c.iso3, b.c.iso3))
       .slice(0, 15);
-    if (state.view === "reciprocity") {
-      body.innerHTML = `<h2>Who gives what back?</h2>
-        <p class="empty">Select a country to see which relationships are symmetric, and where it gives more access than it
-        gets. The map is shaded by each country's fairness score.</p>${reciprocityPanel(app)}`;
-      app.bindCountryLinks(body);
-      return;
-    }
     body.innerHTML = `
-      <h2>Where can a passport take you?</h2>
-      <p class="empty">Click a country on the map or search for it to see where its citizens can travel,
-      and how. The map is currently shaded by each passport's <strong>visa-free score</strong>: the number of
-      destinations reachable visa-free or with a visa on arrival.</p>
-      <h3>Strongest passports · ${escapeHtml(formatDate(state.date))}</h3>
+      <h2>${escapeHtml(t("passport.introTitle"))}</h2>
+      <p class="empty">${t("passport.intro")}</p>
+      <h3>${escapeHtml(t("passport.strongest", { date: formatDate(state.date) }))}</h3>
       <table class="ranking">
-        <thead><tr><th class="num">Rank</th><th>Passport</th><th class="num">Score</th></tr></thead>
+        <thead><tr><th class="num">${escapeHtml(t("passport.rank"))}</th><th>${escapeHtml(t("passport.passport"))}</th><th class="num">${escapeHtml(t("passport.score"))}</th></tr></thead>
         <tbody>${ranking
-          .map((r) => `<tr><td class="num">${r.rank}</td><td><button type="button" class="linklike" data-iso="${r.c.iso3}">${escapeHtml(r.c.name)}</button></td><td class="num">${r.score}</td></tr>`)
+          .map((r) => `<tr><td class="num">${r.rank}</td><td><button type="button" class="linklike" data-iso="${r.c.iso3}">${escapeHtml(app.data.name(r.c.iso3))}</button></td><td class="num">${r.score}</td></tr>`)
           .join("")}</tbody>
       </table>
       <div class="history"></div>`;
@@ -61,50 +59,42 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
     const access = matrix.get(iso, dest);
     if (access) destinations[access.category].push({ iso: dest, name: app.data.name(dest), days: access.days });
   }
-  for (const list of Object.values(destinations)) list.sort((a, b) => a.name.localeCompare(b.name));
+  for (const list of Object.values(destinations)) list.sort((a, b) => app.data.byName(a.iso, b.iso));
 
   const schengenFree = destinations.visa_free.some((d) => app.data.byIso.get(d.iso)?.schengen);
   const notes: string[] = [];
-  if (schengenFree && !country?.schengen) {
-    notes.push(`<strong>Schengen:</strong> a visa-free stay is counted across the whole Schengen Area
-      (usually 90 days in any 180-day period), not per country.`);
-  }
-  if (snapshot && snapshot.value_format !== "label") {
-    notes.push(`Before November 2020 the source used one bucket for visa on arrival, ETA and e-visa. It is shown as
-      visa on arrival (what most of it became), so scores for this snapshot are approximate.`);
-  } else if (snapshot && !snapshot.eta_is_distinct) {
-    notes.push(`In this snapshot ETAs are not separated from e-visas; the split starts on 12 January 2025.`);
-  }
-  notes.push(`Some entries depend on conditions (for example, visa-free with a valid US or Schengen visa,
-    or only at certain airports). One category per country can't show that, so treat each colour as the
-    general rule.`);
+  if (schengenFree && !country?.schengen) notes.push(t("passport.noteSchengen"));
+  if (snapshot && snapshot.value_format !== "label") notes.push(escapeHtml(t("passport.noteMixed")));
+  else if (snapshot && !snapshot.eta_is_distinct) notes.push(escapeHtml(t("passport.noteEta")));
+  notes.push(escapeHtml(t("passport.noteConditional")));
 
+  const subtitle = [regionName(country?.subregion), country?.schengen ? t("passport.schengenArea") : null].filter(Boolean).join(" · ");
   body.innerHTML = `
-    <h2>${escapeHtml(country?.name ?? iso)}</h2>
-    <div class="subtle">${escapeHtml([country?.subregion, country?.schengen ? "Schengen Area" : null].filter(Boolean).join(" · "))}</div>
+    <h2>${escapeHtml(app.data.name(iso))}</h2>
+    <div class="subtle">${escapeHtml(subtitle)}</div>
     <div class="hero">
-      <div><div class="figure">${score ?? "–"}</div><div class="label">visa-free score</div></div>
-      <div><div class="figure">${rank ? ordinal(rank) : "–"}</div><div class="label">world rank of ${of}</div></div>
+      <div><div class="figure">${score ?? "–"}</div><div class="label">${escapeHtml(t("passport.scoreLabel"))}</div></div>
+      <div><div class="figure">${rank ? ordinal(rank) : "–"}</div><div class="label">${escapeHtml(t("passport.rankLabel", { of }))}</div></div>
     </div>
     ${state.view === "reciprocity" ? reciprocityPanel(app) : ""}
     <div class="history"></div>
-    <h3>Entry requirements</h3>
-    <ul class="counts" aria-label="Destinations by entry requirement">
+    <h3>${escapeHtml(t("passport.requirements"))}</h3>
+    <ul class="counts" aria-label="${escapeHtml(t("passport.requirementsAria"))}">
       ${CATEGORY_ORDER.map((key) => {
         const n = counts[key];
         const pct = total ? (100 * n) / total : 0;
-        return `<li>${swatch(categoryColor(key))}<span>${CATEGORY_LABEL[key]}</span><span class="num">${n}</span>
+        return `<li>${swatch(categoryColor(key))}<span>${escapeHtml(categoryLabel(key))}</span><span class="num">${n}</span>
           <span class="bar" aria-hidden="true"><span style="width:${pct.toFixed(1)}%;background:${categoryColor(key)}"></span></span></li>`;
       }).join("")}
     </ul>
     ${notes.map((n) => `<p class="note">${n}</p>`).join("")}
-    <h3>Destinations</h3>
+    <h3>${escapeHtml(t("passport.destinations"))}</h3>
     ${CATEGORY_ORDER.filter((key) => destinations[key].length)
       .map(
         (key) => `<details${key === "visa_free" ? " open" : ""}>
-          <summary>${swatch(categoryColor(key))} ${CATEGORY_LABEL[key]} (${destinations[key].length})</summary>
+          <summary>${swatch(categoryColor(key))} ${escapeHtml(categoryLabel(key))} (${destinations[key].length})</summary>
           <ul class="dest-list">${destinations[key]
-            .map((d) => `<li><button type="button" data-focus="${d.iso}">${escapeHtml(d.name)}</button>${d.days ? ` <span class="subtle">${d.days}d</span>` : ""}</li>`)
+            .map((d) => `<li><button type="button" data-focus="${d.iso}">${escapeHtml(d.name)}</button>${d.days ? ` <span class="subtle">${escapeHtml(t("common.daysShort", { n: d.days }))}</span>` : ""}</li>`)
             .join("")}</ul>
         </details>`,
       )

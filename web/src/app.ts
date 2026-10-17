@@ -4,12 +4,13 @@ import type { Matrix } from "./matrix";
 import { Store, parseUrl, type AppState, type Tab, type View } from "./state";
 import { currentTheme } from "./theme";
 import { escapeHtml, formatDate } from "./format";
+import { detectLang, setLang, t, type Lang } from "./i18n";
 import type { SnapshotInfo } from "./types";
 import type { Topology } from "topojson-specification";
 
 export interface ViewDef {
   id: View;
-  label: string;
+  label: () => string;
   /** Map colour for a country (ISO-3), or null for "no data". */
   color(app: App, iso3: string): string | null;
   tooltip(app: App, iso3: string): string;
@@ -20,7 +21,7 @@ export interface ViewDef {
 
 export interface TabDef {
   id: Tab;
-  label: string;
+  label: () => string;
   render(app: App, body: HTMLElement): void | Promise<void>;
 }
 
@@ -39,6 +40,8 @@ export class App {
   private tabs = new Map<Tab, TabDef>();
   private renderToken = 0;
   private afterRender: (() => void)[] = [];
+  private langListeners: ((lang: Lang) => void)[] = [];
+  private renderedLang: Lang | null = null;
   private hoverIso: string | null = null;
   private els = {
     tooltip: document.getElementById("tooltip")!,
@@ -52,8 +55,11 @@ export class App {
 
   constructor(readonly data: DataStore, topo: Topology) {
     const dates = data.meta.snapshots.map((s) => s.date);
-    const defaults: AppState = { passport: null, second: null, date: data.latestDate, view: "access", tab: "passport", focus: null };
+    const defaults: AppState = {
+      passport: null, second: null, date: data.latestDate, view: "access", tab: "passport", focus: null, lang: detectLang(),
+    };
     this.store = new Store(parseUrl(location.search, defaults, (iso) => data.byIso.get(iso)?.visa_data ?? false, dates), data.latestDate);
+    setLang(this.store.state.lang);
 
     this.map = new MapView(document.getElementById("map")!, topo, (ne) => {
       const c = data.byNe.get(ne);
@@ -75,6 +81,11 @@ export class App {
 
   registerView(view: ViewDef): void {
     this.views.set(view.id, view);
+  }
+
+  /** Called before rendering whenever the interface language changes (and once at start). */
+  onLangChange(callback: (lang: Lang) => void): void {
+    this.langListeners.push(callback);
   }
 
   /** Called after every render (e.g. to sync the timeline). */
@@ -130,14 +141,19 @@ export class App {
   async render(): Promise<void> {
     const token = ++this.renderToken;
     const { state } = this.store;
+    if (state.lang !== this.renderedLang) {
+      this.renderedLang = state.lang;
+      setLang(state.lang);
+      for (const listener of this.langListeners) listener(state.lang);
+    }
     if (!this.matrix || this.matrix.date !== state.date) {
-      this.setStatus(`Loading the ${formatDate(state.date)} snapshot…`);
+      this.setStatus(t("app.loading", { date: formatDate(state.date) }));
       try {
         const matrix = await this.data.matrix(state.date);
         if (token !== this.renderToken) return;
         this.matrix = matrix;
       } catch (err) {
-        this.setStatus(`Could not load this snapshot: ${(err as Error).message}`);
+        this.setStatus(t("app.loadFailed", { error: (err as Error).message }));
         return;
       }
     }
@@ -175,7 +191,7 @@ export class App {
   private renderViewSwitch(): void {
     const current = this.store.state.view;
     const html = [...this.views.values()]
-      .map((v) => `<button type="button" aria-pressed="${v.id === current}" data-view="${v.id}">${escapeHtml(v.label)}</button>`)
+      .map((v) => `<button type="button" aria-pressed="${v.id === current}" data-view="${v.id}">${escapeHtml(v.label())}</button>`)
       .join("");
     if (this.els.views.innerHTML !== html) {
       this.els.views.innerHTML = html;
@@ -193,7 +209,7 @@ export class App {
   private async renderTabs(): Promise<void> {
     const current = this.store.state.tab;
     const html = [...this.tabs.values()]
-      .map((t) => `<button type="button" role="tab" id="tab-${t.id}" aria-selected="${t.id === current}" aria-controls="tab-body" data-tab="${t.id}">${escapeHtml(t.label)}</button>`)
+      .map((tab) => `<button type="button" role="tab" id="tab-${tab.id}" aria-selected="${tab.id === current}" aria-controls="tab-body" data-tab="${tab.id}">${escapeHtml(tab.label())}</button>`)
       .join("");
     if (this.els.tabs.innerHTML !== html) {
       this.els.tabs.innerHTML = html;
@@ -220,9 +236,11 @@ export class App {
   private renderDisclaimer(): void {
     const { date } = this.store.state;
     const latest = this.data.latestDate;
-    const snapshot = date === latest ? `Data snapshot: ${formatDate(latest)}` : `Viewing ${formatDate(date)} · latest data: ${formatDate(latest)}`;
-    this.els.disclaimer.innerHTML = `<span>${escapeHtml(snapshot)}. Visa rules change often. Always check the destination's official government source before travelling.</span>
-      <span class="sources">Data: Passport Index dataset (MIT), World Bank, UNDP, Natural Earth</span>`;
+    const snapshot = date === latest
+      ? t("app.snapshotLatest", { date: formatDate(latest) })
+      : t("app.snapshotViewing", { date: formatDate(date), latest: formatDate(latest) });
+    this.els.disclaimer.innerHTML = `<span>${escapeHtml(snapshot)} ${escapeHtml(t("app.disclaimer"))}</span>
+      <span class="sources">${escapeHtml(t("app.sources"))}</span>`;
   }
 
   private setStatus(text: string | null): void {
@@ -249,7 +267,7 @@ export class App {
     const country = this.data.byNe.get(this.lastNe);
     el.innerHTML = country && this.matrix?.has(country.iso3)
       ? this.view.tooltip(this, country.iso3)
-      : `<strong>${escapeHtml(country?.name ?? "Unmapped area")}</strong><div class="hint">No data in the visa dataset for this territory.</div>`;
+      : `<strong>${escapeHtml(country ? this.data.name(country.iso3) : t("app.unmapped"))}</strong><div class="hint">${escapeHtml(t("app.unmappedHint"))}</div>`;
     el.hidden = false;
     const wrap = el.parentElement!.getBoundingClientRect();
     const box = el.getBoundingClientRect();

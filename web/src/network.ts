@@ -1,4 +1,5 @@
 import { fetchJson } from "./data";
+import { blocShort, regionName, t } from "./i18n";
 
 export interface NetworkCountry {
   iso3: string;
@@ -13,6 +14,7 @@ export interface NetworkCountry {
 export interface Community {
   community_id: number;
   label: string;
+  label_parts: { kind: "blocs"; blocs: string[]; partners: boolean } | { kind: "region" | "mixed"; subregion: string };
   size: number;
   top_subregion: string;
   blocs: { code: string; name: string; share_of_bloc: number }[];
@@ -44,4 +46,14 @@ const SLOTS = [1, 2, 3, 4, 5, 6, 8, 7];
 /** Categorical slot per community: the eight largest get a colour, the rest share "other". */
 export function communitySlot(id: number | null): string {
   return id !== null && id < SLOTS.length ? `--s-${SLOTS[id]}` : "--s-other";
+}
+
+/** Community label in the current language, built from its exported parts. */
+export function communityLabel(c: Community): string {
+  const p = c.label_parts;
+  if (p.kind === "blocs") {
+    const blocs = p.blocs.map(blocShort).join(" + ");
+    return p.partners ? t("community.partners", { blocs }) : blocs;
+  }
+  return p.kind === "region" ? regionName(p.subregion) : t("community.mixed", { region: regionName(p.subregion) });
 }

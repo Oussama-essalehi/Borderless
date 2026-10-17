@@ -30,6 +30,8 @@ export interface EventInfo {
   kind: "covid" | "eta" | "policy" | "methodology";
   title: string;
   description: string;
+  title_fr: string;
+  description_fr: string;
 }
 
 export interface Meta {
@@ -45,6 +47,7 @@ export interface Meta {
 export interface Country {
   iso3: string;
   name: string;
+  name_fr: string;
   region: string | null;
   subregion: string | null;
   ne: string | null;

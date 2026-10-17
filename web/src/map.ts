@@ -5,6 +5,7 @@ import { feature } from "topojson-client";
 import type { FeatureCollection, Point, Polygon, MultiPolygon } from "geojson";
 import type { Topology, GeometryCollection } from "topojson-specification";
 import { cssVar } from "./theme";
+import { t } from "./i18n";
 // MapLibre finds its worker relative to its own module URL, which a bundler
 // rewrites; point it at a copy that Vite emits with the build instead.
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
@@ -64,7 +65,7 @@ export class MapView {
       dragRotate: false,
       pitchWithRotate: false,
       touchPitch: false,
-      attributionControl: { compact: true, customAttribution: "Boundaries: Natural Earth" },
+      attributionControl: { compact: true, customAttribution: t("map.attribution") },
     });
     this.map.touchZoomRotate.disableRotation();
     this.map.keyboard.disableRotation();
@@ -216,6 +217,12 @@ export class MapView {
       [Math.max(...lons) + 8, Math.max(...lats) + 6],
     ];
     this.map.fitBounds(bounds, { padding: 40, maxZoom: 4, duration: 600 });
+  }
+
+  /** Translate the attribution text after a language change. */
+  setAttribution(text: string): void {
+    const inner = this.map.getContainer().querySelector(".maplibregl-ctrl-attrib-inner");
+    if (inner) inner.textContent = text;
   }
 
   resize(): void {

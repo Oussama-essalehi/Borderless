@@ -1,5 +1,6 @@
 import type { App } from "../app";
-import { CATEGORY_LABEL, CATEGORY_ORDER, categoryColor, escapeHtml, swatch } from "../format";
+import { CATEGORY_ORDER, categoryColor, categoryLabel, escapeHtml, swatch } from "../format";
+import { t } from "../i18n";
 import { EASE, bestOf } from "../matrix";
 import type { CategoryKey } from "../types";
 import { comboOptions } from "../views/combo";
@@ -11,13 +12,11 @@ export function renderComboTab(app: App, body: HTMLElement): void {
   const options = app.data
     .passports()
     .filter((c) => c.iso3 !== passport)
-    .map((c) => `<option value="${c.iso3}"${c.iso3 === second ? " selected" : ""}>${escapeHtml(c.name)}</option>`)
+    .map((c) => `<option value="${c.iso3}"${c.iso3 === second ? " selected" : ""}>${escapeHtml(app.data.name(c.iso3))}</option>`)
     .join("");
 
   if (!passport) {
-    body.innerHTML = `<h2>Two passports</h2>
-      <p class="empty">Dual citizens can use whichever passport works best at each border. Pick a first passport
-      on the map or with the search box, then choose the second one here.</p>`;
+    body.innerHTML = `<h2>${escapeHtml(t("combo.title"))}</h2><p class="empty">${escapeHtml(t("combo.intro"))}</p>`;
     return;
   }
 
@@ -37,33 +36,32 @@ export function renderComboTab(app: App, body: HTMLElement): void {
     const firstScore = m.score(passport);
     const combined = counts.visa_free + counts.visa_on_arrival;
     const newlyFree = gains.filter((g) => EASE[g.to] >= EASE.visa_on_arrival && EASE[g.from] < EASE.visa_on_arrival);
-    gains.sort((x, y) => EASE[y.to] - EASE[y.from] - (EASE[x.to] - EASE[x.from]) || app.data.name(x.iso).localeCompare(app.data.name(y.iso)));
+    gains.sort((x, y) => EASE[y.to] - EASE[y.from] - (EASE[x.to] - EASE[x.from]) || app.data.byName(x.iso, y.iso));
     const n1 = escapeHtml(app.data.name(passport)), n2 = escapeHtml(app.data.name(second));
     summary = `
       <div class="hero">
-        <div><div class="figure">+${combined - firstScore}</div><div class="label">visa-free destinations added by ${n2}</div></div>
-        <div><div class="figure">${combined}</div><div class="label">combined visa-free score</div></div>
+        <div><div class="figure">+${combined - firstScore}</div><div class="label">${escapeHtml(t("combo.added", { name: app.data.name(second) }))}</div></div>
+        <div><div class="figure">${combined}</div><div class="label">${escapeHtml(t("combo.combined"))}</div></div>
       </div>
-      <p>${n2} improves access to <strong>${gains.length}</strong> destinations compared with ${n1} alone, and opens
-        <strong>${newlyFree.length}</strong> of them without an advance application.</p>
-      <label class="check"><input type="checkbox" id="only-gains"${comboOptions.onlyGains ? " checked" : ""}/> Only colour destinations where ${n2} does better</label>
-      <h3>Best access with either passport</h3>
-      <ul class="counts">${CATEGORY_ORDER.map((k) => `<li>${swatch(categoryColor(k))}<span>${CATEGORY_LABEL[k]}</span><span class="num">${counts[k]}</span></li>`).join("")}</ul>
-      ${gains.length ? `<h3>What ${n2} adds</h3>
+      <p>${t("combo.improves", { second: n2, first: n1, n: gains.length, free: newlyFree.length })}</p>
+      <label class="check"><input type="checkbox" id="only-gains"${comboOptions.onlyGains ? " checked" : ""}/> ${escapeHtml(t("combo.onlyGains", { name: app.data.name(second) }))}</label>
+      <h3>${escapeHtml(t("combo.best"))}</h3>
+      <ul class="counts">${CATEGORY_ORDER.map((k) => `<li>${swatch(categoryColor(k))}<span>${escapeHtml(categoryLabel(k))}</span><span class="num">${counts[k]}</span></li>`).join("")}</ul>
+      ${gains.length ? `<h3>${escapeHtml(t("combo.adds", { name: app.data.name(second) }))}</h3>
         <ul class="dest-list" style="columns:1">${gains
           .map((g) => `<li><button type="button" data-focus="${g.iso}">${escapeHtml(app.data.name(g.iso))}</button>
-            <span class="subtle">${escapeHtml(CATEGORY_LABEL[g.from])} → ${escapeHtml(CATEGORY_LABEL[g.to])}${g.days ? ` (${g.days}d)` : ""}</span></li>`)
+            <span class="subtle">${escapeHtml(categoryLabel(g.from))} → ${escapeHtml(categoryLabel(g.to))}${g.days ? ` (${escapeHtml(t("common.daysShort", { n: g.days }))})` : ""}</span></li>`)
           .join("")}</ul>` : ""}`;
   }
 
   body.innerHTML = `
-    <h2>Two passports</h2>
-    <p class="subtle">First passport: <strong>${escapeHtml(app.data.name(passport))}</strong>. Click another country on the map or choose it below.</p>
+    <h2>${escapeHtml(t("combo.title"))}</h2>
+    <p class="subtle">${t("combo.first", { name: escapeHtml(app.data.name(passport)) })}</p>
     <div class="field">
-      <label for="second-passport">Second passport</label>
-      <select id="second-passport"><option value="">Choose…</option>${options}</select>
+      <label for="second-passport">${escapeHtml(t("combo.second"))}</label>
+      <select id="second-passport"><option value="">${escapeHtml(t("common.choose"))}</option>${options}</select>
     </div>
-    ${second ? `<button type="button" class="linklike" id="swap">Swap the two passports</button>` : ""}
+    ${second ? `<button type="button" class="linklike" id="swap">${escapeHtml(t("combo.swap"))}</button>` : ""}
     ${summary}`;
 
   body.querySelector<HTMLSelectElement>("#second-passport")!.addEventListener("change", (e) => {

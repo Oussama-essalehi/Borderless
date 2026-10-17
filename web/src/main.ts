@@ -2,6 +2,8 @@ import "./styles.css";
 import type { Topology } from "topojson-specification";
 import { App } from "./app";
 import { DataStore } from "./data";
+import { detectLang, setLang, t } from "./i18n";
+import { applyPageText, setupLangToggle } from "./page";
 import { setupSearch } from "./search";
 import { setupAbout } from "./about";
 import { setupTheme } from "./theme";
@@ -13,6 +15,10 @@ import { communityView } from "./views/community";
 import { comboView } from "./views/combo";
 
 async function main(): Promise<void> {
+  // Translate the static page right away, before the data arrives.
+  setLang(detectLang());
+  applyPageText();
+
   const [data, topo] = await Promise.all([
     DataStore.load(),
     fetch(`${import.meta.env.BASE_URL}geo/countries.topo.json`).then((r) => r.json() as Promise<Topology>),
@@ -22,14 +28,17 @@ async function main(): Promise<void> {
   app.registerView(reciprocityView);
   app.registerView(comboView);
   app.registerView(communityView);
-  app.registerTab({ id: "passport", label: "Passport", render: renderPassportTab });
+  app.registerTab({ id: "passport", label: () => t("tab.passport"), render: renderPassportTab });
   // Secondary tabs are loaded on first use to keep the first page load small.
-  app.registerTab({ id: "insights", label: "Insights", render: async (a, b) => (await import("./tabs/insights")).renderInsightsTab(a, b) });
-  app.registerTab({ id: "wealth", label: "Wealth", render: async (a, b) => (await import("./tabs/wealth")).renderWealthTab(a, b) });
-  app.registerTab({ id: "trips", label: "Trips", render: async (a, b) => (await import("./tabs/trips")).renderTripsTab(a, b) });
-  app.registerTab({ id: "changes", label: "Changes", render: async (a, b) => (await import("./tabs/changes")).renderChangesTab(a, b) });
+  app.registerTab({ id: "insights", label: () => t("tab.insights"), render: async (a, b) => (await import("./tabs/insights")).renderInsightsTab(a, b) });
+  app.registerTab({ id: "wealth", label: () => t("tab.wealth"), render: async (a, b) => (await import("./tabs/wealth")).renderWealthTab(a, b) });
+  app.registerTab({ id: "trips", label: () => t("tab.trips"), render: async (a, b) => (await import("./tabs/trips")).renderTripsTab(a, b) });
+  app.registerTab({ id: "changes", label: () => t("tab.changes"), render: async (a, b) => (await import("./tabs/changes")).renderChangesTab(a, b) });
 
-  setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());
+  const refreshTheme = setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());
+  app.onLangChange(refreshTheme);
+  app.onLangChange(() => app.map.setAttribution(t("map.attribution")));
+  setupLangToggle(app, document.getElementById("lang-toggle") as HTMLButtonElement);
   setupSearch(app);
   setupAbout(app);
   app.onRender(setupTimeline(app, document.getElementById("timeline")!));
@@ -42,6 +51,6 @@ main().catch((err) => {
   const status = document.getElementById("map-status");
   if (status) {
     status.hidden = false;
-    status.textContent = "Something went wrong while loading the data. Please reload the page.";
+    status.textContent = t("page.loadError");
   }
 });

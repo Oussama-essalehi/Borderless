@@ -1,3 +1,5 @@
+import type { Lang } from "./i18n";
+
 export type View = "access" | "reciprocity" | "combo" | "community";
 export type Tab = "passport" | "insights" | "wealth" | "trips" | "changes";
 
@@ -9,6 +11,7 @@ export interface AppState {
   tab: Tab;
   /** A destination to highlight (e.g. from the changes list). */
   focus: string | null;
+  lang: Lang;
 }
 
 const VIEWS: View[] = ["access", "reciprocity", "combo", "community"];
@@ -26,6 +29,7 @@ export function parseUrl(search: string, defaults: AppState, isKnown: (iso3: str
   const view = params.get("view") as View | null;
   const tab = params.get("tab") as Tab | null;
   const date = params.get("date");
+  const lang = params.get("lang");
   return {
     passport: iso("passport"),
     second: iso("with"),
@@ -33,6 +37,7 @@ export function parseUrl(search: string, defaults: AppState, isKnown: (iso3: str
     view: view && VIEWS.includes(view) ? view : defaults.view,
     tab: tab && TABS.includes(tab) ? tab : defaults.tab,
     focus: iso("focus"),
+    lang: lang === "en" || lang === "fr" ? lang : defaults.lang,
   };
 }
 
@@ -44,6 +49,8 @@ export function toSearch(state: AppState, latestDate: string): string {
   if (state.tab !== "passport") params.set("tab", state.tab);
   if (state.date !== latestDate) params.set("date", state.date);
   if (state.focus) params.set("focus", state.focus);
+  // Always explicit so a shared link opens in the language it was shared in.
+  params.set("lang", state.lang);
   const s = params.toString();
   return s ? `?${s}` : "";
 }

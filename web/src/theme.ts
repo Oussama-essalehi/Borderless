@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 const KEY = "borderless-theme";
 
 export function cssVar(name: string): string {
@@ -18,14 +20,14 @@ function readStored(): string | null {
   }
 }
 
-/** Light/dark toggle. Follows the OS until the user picks one. */
-export function setupTheme(button: HTMLButtonElement, onChange: () => void): void {
+/** Light/dark toggle. Follows the OS until the user picks one. Returns a function that refreshes its label. */
+export function setupTheme(button: HTMLButtonElement, onChange: () => void): () => void {
   const stored = readStored();
   if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored;
   const render = () => {
     const theme = currentTheme();
     button.textContent = theme === "dark" ? "☀" : "☾";
-    button.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+    button.setAttribute("aria-label", theme === "dark" ? t("theme.toLight") : t("theme.toDark"));
   };
   render();
   button.addEventListener("click", () => {
@@ -43,4 +45,5 @@ export function setupTheme(button: HTMLButtonElement, onChange: () => void): voi
     render();
     onChange();
   });
+  return render;
 }

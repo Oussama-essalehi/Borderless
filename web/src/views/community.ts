@@ -1,7 +1,8 @@
 import type { ViewDef } from "../app";
 import { escapeHtml, swatch } from "../format";
+import { blocShort, t } from "../i18n";
 import { renderLegend } from "../legend";
-import { communitySlot, loadNetwork, type NetworkFile } from "../network";
+import { communityLabel, communitySlot, loadNetwork, type NetworkFile } from "../network";
 import { cssVar } from "../theme";
 
 let data: NetworkFile | null = null;
@@ -14,7 +15,7 @@ export function highlightCommunity(id: number | null): void {
 
 export const communityView: ViewDef = {
   id: "community",
-  label: "Blocs",
+  label: () => t("view.community"),
   async prepare() {
     if (!data) {
       data = await loadNetwork();
@@ -30,21 +31,22 @@ export const communityView: ViewDef = {
   tooltip(app, iso3) {
     const id = byIso.get(iso3);
     const community = data?.communities.find((c) => c.community_id === id);
-    if (!community) return `<strong>${escapeHtml(app.data.name(iso3))}</strong>No community`;
-    const blocs = community.blocs.map((b) => b.code).join(", ");
-    return `<strong>${escapeHtml(app.data.name(iso3))}</strong>
-      <div class="row">${swatch(cssVar(communitySlot(community.community_id)))}${escapeHtml(community.label)}</div>
-      <div class="hint">${community.size} countries${blocs ? ` · contains ${escapeHtml(blocs)}` : ""}</div>`;
+    const name = escapeHtml(app.data.name(iso3));
+    if (!community) return `<strong>${name}</strong>${escapeHtml(t("community.none"))}`;
+    const blocs = community.blocs.map((b) => blocShort(b.code)).join(", ");
+    return `<strong>${name}</strong>
+      <div class="row">${swatch(cssVar(communitySlot(community.community_id)))}${escapeHtml(communityLabel(community))}</div>
+      <div class="hint">${escapeHtml(t("insights.countries", { n: community.size }))}${blocs ? ` · ${escapeHtml(t("community.tipContains", { blocs }))}` : ""}</div>`;
   },
   legend(app, el) {
     if (!data) return;
     renderLegend(
       el,
-      `Visa blocs detected in the ${data.snapshot_date.slice(0, 4)} network`,
+      t("legend.blocs", { year: data.snapshot_date.slice(0, 4) }),
       data.communities.map((c) => ({
         key: String(c.community_id),
         color: cssVar(communitySlot(c.community_id)),
-        label: `${c.label} (${c.size})`,
+        label: `${communityLabel(c)} (${c.size})`,
       })),
       {
         onHover: (key) => {

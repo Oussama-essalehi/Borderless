@@ -1,5 +1,6 @@
 import type { App, ViewDef } from "../app";
-import { CATEGORY_LABEL, categoryColor, describeAccess, escapeHtml, swatch } from "../format";
+import { categoryColor, categoryLabel, describeAccess, escapeHtml, swatch } from "../format";
+import { colon, t } from "../i18n";
 import { accessLegend, renderLegend } from "../legend";
 import { bestOf } from "../matrix";
 import { cssVar } from "../theme";
@@ -16,7 +17,7 @@ export function comboAccess(app: App, iso3: string) {
 
 export const comboView: ViewDef = {
   id: "combo",
-  label: "Two passports",
+  label: () => t("view.combo"),
   color(app, iso3) {
     const { passport, second } = app.store.state;
     if (!passport || !second) return accessView.color(app, iso3);
@@ -31,23 +32,23 @@ export const comboView: ViewDef = {
     const { passport, second } = app.store.state;
     if (!passport || !second) return accessView.tooltip(app, iso3);
     const name = escapeHtml(app.data.name(iso3));
-    if (iso3 === passport || iso3 === second) return `<strong>${name}</strong>One of the two passports`;
+    if (iso3 === passport || iso3 === second) return `<strong>${name}</strong>${escapeHtml(t("combo.tipOneOfTwo"))}`;
     const m = app.matrix!;
     const a = m.get(passport, iso3), b = m.get(second, iso3);
     const { access, from } = comboAccess(app, iso3);
-    if (!access) return `<strong>${name}</strong>No data`;
-    const via = from === "both" ? "either passport" : `the ${escapeHtml(app.data.name(from === "first" ? passport : second))} passport`;
+    if (!access) return `<strong>${name}</strong>${escapeHtml(t("common.noData"))}`;
+    const via = from === "both" ? t("combo.tipEither") : t("combo.tipThe", { name: app.data.name(from === "first" ? passport : second) });
     return `<strong>${name}</strong>
       <div class="row">${swatch(categoryColor(access.category))}${escapeHtml(describeAccess(access))}</div>
-      <div class="hint">Best with ${via}</div>
-      <div class="hint">${escapeHtml(app.data.name(passport))}: ${a ? escapeHtml(CATEGORY_LABEL[a.category]) : "–"} ·
-        ${escapeHtml(app.data.name(second))}: ${b ? escapeHtml(CATEGORY_LABEL[b.category]) : "–"}</div>`;
+      <div class="hint">${escapeHtml(t("combo.tipBest", { via }))}</div>
+      <div class="hint">${escapeHtml(app.data.name(passport))}${colon()}${a ? escapeHtml(categoryLabel(a.category)) : "–"} ·
+        ${escapeHtml(app.data.name(second))}${colon()}${b ? escapeHtml(categoryLabel(b.category)) : "–"}</div>`;
   },
   legend(app, el) {
     const { passport, second } = app.store.state;
     if (!passport || !second) {
       if (passport) accessLegend(el, app.data.name(passport));
-      else renderLegend(el, "Pick two passports", [], { noData: false });
+      else renderLegend(el, t("legend.pickTwo"), [], { noData: false });
       return;
     }
     accessLegend(el, `${app.data.name(passport)} + ${app.data.name(second)}`);

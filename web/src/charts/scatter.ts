@@ -2,6 +2,7 @@ import { axisBottom, axisLeft } from "d3-axis";
 import { extent } from "d3-array";
 import { scaleLinear, scaleLog } from "d3-scale";
 import { select } from "d3-selection";
+import { t } from "../i18n";
 import { escapeHtml } from "../format";
 
 export interface ScatterPoint {
@@ -38,7 +39,7 @@ export function renderScatter(el: HTMLElement, spec: ScatterSpec): void {
   el.innerHTML = "";
   el.classList.add("chart");
   const svg = select(el).append("svg").attr("viewBox", `0 0 ${width} ${height}`).attr("width", width).attr("height", height)
-    .attr("role", "group").attr("aria-label", `${spec.yLabel} against ${spec.xLabel}`);
+    .attr("role", "group").attr("aria-label", t("chart.against", { y: spec.yLabel, x: spec.xLabel }));
 
   svg.append("g").attr("class", "grid").attr("transform", `translate(${m.left},0)`)
     .call(axisLeft(y).ticks(5).tickSize(-(width - m.left - m.right)).tickFormat(() => ""));

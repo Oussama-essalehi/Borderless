@@ -30,6 +30,15 @@ data: $(STAMP) ## Run the whole pipeline without Airflow
 data-refresh: $(STAMP) ## Same as `data`, ignoring the raw download cache
 	$(BIN)/python -m borderless_pipeline all --force
 
+.PHONY: dbt-build
+dbt-build: $(STAMP) ## Rebuild dbt models and run dbt tests on the current raw data
+	$(BIN)/python -m borderless_pipeline dbt
+
+.PHONY: dbt-docs
+dbt-docs: $(STAMP) ## Generate dbt docs and serve them on http://localhost:8081
+	$(BIN)/python -m borderless_pipeline docs
+	cd dbt && ../$(BIN)/dbt docs serve --profiles-dir . --port 8081
+
 .PHONY: test
 test: $(STAMP) ## Run the Python test suite
 	$(BIN)/pytest pipeline

@@ -54,6 +54,8 @@ def main(argv: list[str] | None = None) -> None:
     p_extract.add_argument("source", nargs="?", default="all", choices=["all", *EXTRACTORS])
     p_extract.add_argument("--force", action="store_true", help="ignore the raw cache")
     sub.add_parser("load", help="load raw files into DuckDB")
+    sub.add_parser("dbt", help="dbt build (seeds, models, tests)")
+    sub.add_parser("docs", help="dbt docs generate")
     p_all = sub.add_parser("all", help="run every step (what `make data` calls)")
     p_all.add_argument("--force", action="store_true", help="ignore the raw cache")
     args = parser.parse_args(argv)
@@ -65,9 +67,14 @@ def main(argv: list[str] | None = None) -> None:
         run_extract(settings, args.source, args.force)
     elif args.step == "load":
         load_raw(settings)
+    elif args.step == "dbt":
+        run_dbt(settings, "build")
+    elif args.step == "docs":
+        run_dbt(settings, "docs", "generate")
     elif args.step == "all":
         run_extract(settings, "all", args.force)
         load_raw(settings)
+        run_dbt(settings, "build")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import type { App } from "../app";
 import { CATEGORY_LABEL, CATEGORY_ORDER, categoryColor, escapeHtml, formatDate, ordinal, swatch } from "../format";
 import type { CategoryKey } from "../types";
 import { reciprocityPanel } from "./reciprocity";
+import { historySection } from "./history";
 
 export function renderPassportTab(app: App, body: HTMLElement): void {
   const { state } = app.store;
@@ -33,7 +34,9 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
         <tbody>${ranking
           .map((r) => `<tr><td class="num">${r.rank}</td><td><button type="button" class="linklike" data-iso="${r.c.iso3}">${escapeHtml(r.c.name)}</button></td><td class="num">${r.score}</td></tr>`)
           .join("")}</tbody>
-      </table>`;
+      </table>
+      <div class="history"></div>`;
+    historySection(app, body.querySelector<HTMLElement>(".history")!);
     app.bindCountryLinks(body);
     return;
   }
@@ -76,6 +79,7 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
       <div><div class="figure">${rank ? ordinal(rank) : "–"}</div><div class="label">world rank of ${of}</div></div>
     </div>
     ${state.view === "reciprocity" ? reciprocityPanel(app) : ""}
+    <div class="history"></div>
     <h3>Entry requirements</h3>
     <ul class="counts" aria-label="Destinations by entry requirement">
       ${CATEGORY_ORDER.map((key) => {
@@ -97,5 +101,6 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
         </details>`,
       )
       .join("")}`;
+  historySection(app, body.querySelector<HTMLElement>(".history")!);
   app.bindCountryLinks(body);
 }

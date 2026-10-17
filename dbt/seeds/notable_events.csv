@@ -1,0 +1,9 @@
+event_date,kind,title,description
+2020-03-11,covid,COVID-19 pandemic declared,"Borders close worldwide; the dataset records blanket entry bans as 'covid ban' from the November 2020 snapshot."
+2022-11-01,policy,Qatar Hayya permit,"Qatar requires the Hayya entry permit from almost every visitor during the FIFA World Cup (November-December 2022)."
+2023-01-01,policy,Croatia joins Schengen,"Croatia becomes a full member of the Schengen Area."
+2023-11-15,eta,UK ETA starts,"The UK electronic travel authorisation starts with Qatari nationals, then extends to the other Gulf states and Jordan in February 2024."
+2025-01-01,policy,Bulgaria and Romania join Schengen,"Land border controls are lifted; both become full Schengen members."
+2025-01-08,eta,UK ETA for non-Europeans,"The UK ETA becomes mandatory for visa-exempt non-Europeans, including US, Canadian and Australian citizens."
+2025-01-12,methodology,ETA becomes its own category,"From this snapshot the dataset separates ETAs from e-visas. Earlier snapshots count ETAs as e-visas."
+2025-04-02,eta,UK ETA for Europeans,"The UK ETA becomes mandatory for EU and other European visitors; it first appears in the February 2026 snapshot."

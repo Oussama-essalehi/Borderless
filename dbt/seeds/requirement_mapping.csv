@@ -1,0 +1,21 @@
+value_format,requirement_key,category,category_detail,note
+numeric_code,3,visa_free,,2019 code 3: visa-free travel
+numeric_code,2,e_visa,eta_or_e_visa,"2019 code 2: ETA/e-visa. The README of the time says 2 = visa on arrival, but 8,264 of these pairs are 'ETA' in Feb 2020"
+numeric_code,1,visa_on_arrival,,"2019 code 1: visa on arrival. The README of the time says 1 = eTA, but these pairs are 'VOA' in Feb 2020"
+numeric_code,0,visa_required,,2019 code 0: visa required
+numeric_code,-1,home,,passport = destination
+short_code,vf,visa_free,,early-2020 'VF'
+short_code,voa,visa_on_arrival,,early-2020 'VOA'
+short_code,eta,e_visa,eta_or_e_visa,early-2020 'ETA' bucket also covers e-visas
+short_code,vr,visa_required,,early-2020 'VR'
+short_code,-1,home,,passport = destination
+label,visa free,visa_free,,visa-free; number of days not given or not applicable
+label,visa on arrival,visa_on_arrival,,
+label,eta,eta,,electronic travel authorisation (distinct category from 2025-01-12)
+label,e-visa,e_visa,,before 2025-01-12 this bucket also covers ETAs
+label,visa required,visa_required,,
+label,no admission,no_admission,,
+label,covid ban,no_admission,covid_ban,entry banned for most travellers during COVID-19
+label,hayya entry permit,e_visa,hayya_entry_permit,Qatar FIFA World Cup 2022 entry permit (online pre-approval)
+label,evw,eta,uk_electronic_visa_waiver,UK electronic visa waiver
+label,-1,home,,passport = destination

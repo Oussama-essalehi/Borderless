@@ -1,0 +1,27 @@
+version: 2
+
+seeds:
+  - name: requirement_mapping
+    description: Maps every raw requirement value, per value format, to a harmonised category. Numeric day counts are handled in SQL.
+    config:
+      column_types: {value_format: varchar, requirement_key: varchar, category: varchar, category_detail: varchar, note: varchar}
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [value_format, requirement_key]
+  - name: country_overrides
+    description: Natural Earth features whose ISO_A3 is missing or differs from the code used by the visa data.
+  - name: country_attribute_overrides
+    description: Display names and subregions that replace Natural Earth's abbreviations or 'Seven seas' grouping.
+    config:
+      column_types: {iso3: varchar, display_name: varchar, subregion: varchar, note: varchar}
+  - name: schengen_area
+    description: Schengen members and the date each became a full member.
+    config:
+      column_types: {iso3: varchar, full_member_since: date}
+  - name: regional_blocs
+    description: Reference memberships (as of 2025) of regional blocs with free-movement or visa-waiver arrangements; used only to label detected communities.
+  - name: notable_events
+    description: Events shown on the history timeline.
+    config:
+      column_types: {event_date: date, kind: varchar, title: varchar, description: varchar}

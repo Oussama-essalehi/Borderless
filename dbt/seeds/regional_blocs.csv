@@ -1,0 +1,101 @@
+bloc_code,bloc_name,iso3
+SCHENGEN,Schengen Area,AUT
+SCHENGEN,Schengen Area,BEL
+SCHENGEN,Schengen Area,BGR
+SCHENGEN,Schengen Area,CHE
+SCHENGEN,Schengen Area,CZE
+SCHENGEN,Schengen Area,DEU
+SCHENGEN,Schengen Area,DNK
+SCHENGEN,Schengen Area,ESP
+SCHENGEN,Schengen Area,EST
+SCHENGEN,Schengen Area,FIN
+SCHENGEN,Schengen Area,FRA
+SCHENGEN,Schengen Area,GRC
+SCHENGEN,Schengen Area,HRV
+SCHENGEN,Schengen Area,HUN
+SCHENGEN,Schengen Area,ISL
+SCHENGEN,Schengen Area,ITA
+SCHENGEN,Schengen Area,LIE
+SCHENGEN,Schengen Area,LTU
+SCHENGEN,Schengen Area,LUX
+SCHENGEN,Schengen Area,LVA
+SCHENGEN,Schengen Area,MLT
+SCHENGEN,Schengen Area,NLD
+SCHENGEN,Schengen Area,NOR
+SCHENGEN,Schengen Area,POL
+SCHENGEN,Schengen Area,PRT
+SCHENGEN,Schengen Area,ROU
+SCHENGEN,Schengen Area,SVK
+SCHENGEN,Schengen Area,SVN
+SCHENGEN,Schengen Area,SWE
+ECOWAS,Economic Community of West African States,BEN
+ECOWAS,Economic Community of West African States,CPV
+ECOWAS,Economic Community of West African States,CIV
+ECOWAS,Economic Community of West African States,GMB
+ECOWAS,Economic Community of West African States,GHA
+ECOWAS,Economic Community of West African States,GIN
+ECOWAS,Economic Community of West African States,GNB
+ECOWAS,Economic Community of West African States,LBR
+ECOWAS,Economic Community of West African States,NGA
+ECOWAS,Economic Community of West African States,SEN
+ECOWAS,Economic Community of West African States,SLE
+ECOWAS,Economic Community of West African States,TGO
+MERCOSUR,Mercosur (full members),ARG
+MERCOSUR,Mercosur (full members),BOL
+MERCOSUR,Mercosur (full members),BRA
+MERCOSUR,Mercosur (full members),PRY
+MERCOSUR,Mercosur (full members),URY
+CAN,Andean Community,BOL
+CAN,Andean Community,COL
+CAN,Andean Community,ECU
+CAN,Andean Community,PER
+GCC,Gulf Cooperation Council,ARE
+GCC,Gulf Cooperation Council,BHR
+GCC,Gulf Cooperation Council,KWT
+GCC,Gulf Cooperation Council,OMN
+GCC,Gulf Cooperation Council,QAT
+GCC,Gulf Cooperation Council,SAU
+EAC,East African Community,BDI
+EAC,East African Community,COD
+EAC,East African Community,KEN
+EAC,East African Community,RWA
+EAC,East African Community,SOM
+EAC,East African Community,SSD
+EAC,East African Community,TZA
+EAC,East African Community,UGA
+CEMAC,Central African Economic and Monetary Community,CAF
+CEMAC,Central African Economic and Monetary Community,CMR
+CEMAC,Central African Economic and Monetary Community,COG
+CEMAC,Central African Economic and Monetary Community,GAB
+CEMAC,Central African Economic and Monetary Community,GNQ
+CEMAC,Central African Economic and Monetary Community,TCD
+CARICOM,Caribbean Community (sovereign members),ATG
+CARICOM,Caribbean Community (sovereign members),BHS
+CARICOM,Caribbean Community (sovereign members),BLZ
+CARICOM,Caribbean Community (sovereign members),BRB
+CARICOM,Caribbean Community (sovereign members),DMA
+CARICOM,Caribbean Community (sovereign members),GRD
+CARICOM,Caribbean Community (sovereign members),GUY
+CARICOM,Caribbean Community (sovereign members),HTI
+CARICOM,Caribbean Community (sovereign members),JAM
+CARICOM,Caribbean Community (sovereign members),KNA
+CARICOM,Caribbean Community (sovereign members),LCA
+CARICOM,Caribbean Community (sovereign members),SUR
+CARICOM,Caribbean Community (sovereign members),TTO
+CARICOM,Caribbean Community (sovereign members),VCT
+ASEAN,Association of Southeast Asian Nations,BRN
+ASEAN,Association of Southeast Asian Nations,IDN
+ASEAN,Association of Southeast Asian Nations,KHM
+ASEAN,Association of Southeast Asian Nations,LAO
+ASEAN,Association of Southeast Asian Nations,MMR
+ASEAN,Association of Southeast Asian Nations,MYS
+ASEAN,Association of Southeast Asian Nations,PHL
+ASEAN,Association of Southeast Asian Nations,SGP
+ASEAN,Association of Southeast Asian Nations,THA
+ASEAN,Association of Southeast Asian Nations,TLS
+ASEAN,Association of Southeast Asian Nations,VNM
+EAEU,Eurasian Economic Union,ARM
+EAEU,Eurasian Economic Union,BLR
+EAEU,Eurasian Economic Union,KAZ
+EAEU,Eurasian Economic Union,KGZ
+EAEU,Eurasian Economic Union,RUS

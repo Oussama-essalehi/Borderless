@@ -1,0 +1,4 @@
+ne_adm0_a3,iso3,note
+FRA,FRA,Natural Earth sets ISO_A3 to -99 for France (overseas departments)
+NOR,NOR,Natural Earth sets ISO_A3 to -99 for Norway (Svalbard)
+KOS,XKX,Kosovo: user-assigned code XKX as used by the visa dataset and the World Bank

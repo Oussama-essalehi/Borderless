@@ -4,6 +4,7 @@ import { App } from "./app";
 import { DataStore } from "./data";
 import { setupSearch } from "./search";
 import { setupTheme } from "./theme";
+import { setupTimeline } from "./timeline";
 import { renderPassportTab } from "./tabs/passport";
 import { accessView } from "./views/access";
 import { reciprocityView } from "./views/reciprocity";
@@ -20,6 +21,8 @@ async function main(): Promise<void> {
 
   setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());
   setupSearch(app);
+  app.onRender(setupTimeline(app, document.getElementById("timeline")!));
+  new ResizeObserver(() => app.map.resize()).observe(document.getElementById("map")!);
   await app.start();
 }
 

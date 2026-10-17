@@ -38,6 +38,7 @@ export class App {
   private views = new Map<View, ViewDef>();
   private tabs = new Map<Tab, TabDef>();
   private renderToken = 0;
+  private afterRender: (() => void)[] = [];
   private hoverIso: string | null = null;
   private els = {
     tooltip: document.getElementById("tooltip")!,
@@ -74,6 +75,11 @@ export class App {
 
   registerView(view: ViewDef): void {
     this.views.set(view.id, view);
+  }
+
+  /** Called after every render (e.g. to sync the timeline). */
+  onRender(callback: () => void): void {
+    this.afterRender.push(callback);
   }
 
   registerTab(tab: TabDef): void {
@@ -157,6 +163,7 @@ export class App {
     await this.renderTabs();
     this.renderDisclaimer();
     if (this.hoverIso) this.refreshTooltip();
+    for (const callback of this.afterRender) callback();
   }
 
   /** Re-colour after a theme change. */

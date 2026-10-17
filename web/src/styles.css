@@ -290,3 +290,66 @@ select, .field input {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---------------------------------------------------------------- timeline */
+.tl { padding: 6px 16px 4px; }
+.tl-head { display: flex; align-items: center; gap: 8px; }
+.tl-head .icon-button { width: 28px; height: 28px; font-size: 16px; }
+.tl-head .icon-button:disabled { opacity: 0.35; cursor: default; }
+.tl-label { font-size: 13px; }
+.tl-latest { margin-left: auto; font-size: 13px; }
+.tl-track { position: relative; height: 26px; margin: 2px 8px 0; }
+.tl-track input[type="range"] {
+  position: absolute; inset: 0; width: 100%; margin: 0; background: transparent; appearance: none; -webkit-appearance: none;
+}
+.tl-track input[type="range"]::-webkit-slider-runnable-track { height: 26px; background: transparent; }
+.tl-track input[type="range"]::-moz-range-track { height: 26px; background: transparent; }
+.tl-track input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 22px; margin-top: 2px; border-radius: 4px;
+  background: var(--accent); border: 2px solid var(--surface); box-shadow: var(--shadow); cursor: grab;
+}
+.tl-track input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 20px; border-radius: 4px; background: var(--accent); border: 2px solid var(--surface); cursor: grab;
+}
+.tl-track::before { content: ""; position: absolute; left: 0; right: 0; top: 12px; height: 2px; background: var(--hairline); }
+.tl-tick { position: absolute; top: 8px; width: 2px; height: 10px; margin-left: -1px; background: var(--muted); border-radius: 1px; }
+.tl-band { position: absolute; top: 3px; height: 20px; background: color-mix(in srgb, var(--c-visa_required) 18%, transparent); border-radius: 4px; }
+.tl-gap {
+  position: absolute; top: 11px; height: 4px;
+  background: repeating-linear-gradient(90deg, var(--muted) 0 3px, transparent 3px 6px); opacity: 0.6;
+}
+.tl-event {
+  position: absolute; top: -2px; width: 10px; height: 10px; margin-left: -5px; padding: 0; border-radius: 50%;
+  border: 2px solid var(--surface); background: var(--ink-2); cursor: pointer; z-index: 2;
+}
+.tl-event.tl-eta { background: var(--c-eta); border-color: var(--ink-2); }
+.tl-event.tl-covid { background: var(--c-visa_required); }
+.tl-event.tl-methodology { background: var(--surface); border-color: var(--ink-2); }
+.tl-years { position: relative; height: 14px; margin: 0 8px; font-size: 11px; color: var(--muted); }
+.tl-year { position: absolute; transform: translateX(-50%); }
+@media (max-width: 860px) {
+  .tl { padding: 4px 10px 2px; }
+  #tl-note { display: none; }
+}
+
+/* ---------------------------------------------------------------- charts */
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .axis text { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.chart .axis path, .chart .axis line { stroke: var(--hairline); }
+.chart .grid line { stroke: var(--hairline); }
+.chart .grid path { display: none; }
+.chart .band { fill: color-mix(in srgb, var(--c-visa_required) 12%, transparent); }
+.chart .band-label { fill: var(--muted); font-size: 10px; }
+.chart .event { stroke: var(--muted); stroke-dasharray: 2 3; }
+.chart .event-eta { stroke: var(--c-eta); stroke-dasharray: none; stroke-width: 1.5; }
+.chart .current { stroke: var(--ink-2); stroke-width: 1; }
+.chart .crosshair { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 2; pointer-events: none; }
+.chart .direct-label { fill: var(--ink-2); font-size: 11px; }
+.chart-tip {
+  position: absolute; top: 0; transform: translateY(-100%); pointer-events: none; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 12px; box-shadow: var(--shadow); white-space: nowrap;
+}
+.legend-inline { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin: 4px 0; }
+.legend-inline span { display: inline-flex; align-items: center; gap: 4px; }
+.legend-inline .dash { width: 14px; height: 0; border-top: 2px dashed var(--muted); }

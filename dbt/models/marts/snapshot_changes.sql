@@ -35,8 +35,15 @@ select
     previous_access_tier = {{ var('free_tier') }} and access_tier < {{ var('free_tier') }} as lost_visa_free,
     previous_access_tier < {{ var('free_tier') }} and access_tier = {{ var('free_tier') }} as gained_visa_free,
     -- Changes that come from how the data was recorded rather than from policy:
-    -- day counts first published in 2020, and ETAs split out of e-visas in 2025.
+    --   * day counts first published in February 2020;
+    --   * November 2020, when visa on arrival, e-visa and ETA became separate
+    --     labels: moves among those and "visa required" are reclassifications
+    --     (COVID-19 bans and visa-free changes at that date are kept as real);
+    --   * January 2025, when ETAs were split out of e-visas.
     (previous_value_format = 'numeric_code' and category = previous_category)
+        or (previous_value_format = 'short_code' and value_format = 'label'
+            and category in ('visa_on_arrival', 'eta', 'e_visa', 'visa_required')
+            and previous_category in ('visa_on_arrival', 'eta', 'e_visa', 'visa_required'))
         or (is_first_eta_snapshot and 'eta' in (category, previous_category)
             and 'e_visa' in (category, previous_category))                         as is_methodology_artifact,
     crosses_source_change

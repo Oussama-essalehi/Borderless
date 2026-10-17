@@ -1,5 +1,6 @@
 event_date,kind,title,description
 2020-03-11,covid,COVID-19 pandemic declared,"Borders close worldwide; the dataset records blanket entry bans as 'covid ban' from the November 2020 snapshot."
+2020-11-19,methodology,Categories split,"From this snapshot the source separates visa on arrival, e-visa and ETA. Before it, one mixed bucket held all three; Borderless maps it to visa on arrival, its majority, so earlier scores are approximate."
 2022-11-01,policy,Qatar Hayya permit,"Qatar requires the Hayya entry permit from almost every visitor during the FIFA World Cup (November-December 2022)."
 2023-01-01,policy,Croatia joins Schengen,"Croatia becomes a full member of the Schengen Area."
 2023-11-15,eta,UK ETA starts,"The UK electronic travel authorisation starts with Qatari nationals, then extends to the other Gulf states and Jordan in February 2024."

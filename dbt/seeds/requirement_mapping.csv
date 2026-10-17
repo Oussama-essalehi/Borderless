@@ -1,12 +1,12 @@
 value_format,requirement_key,category,category_detail,note
 numeric_code,3,visa_free,,2019 code 3: visa-free travel
-numeric_code,2,e_visa,eta_or_e_visa,"2019 code 2: ETA/e-visa. The README of the time says 2 = visa on arrival, but 8,264 of these pairs are 'ETA' in Feb 2020"
+numeric_code,2,visa_on_arrival,voa_eta_or_e_visa,"2019 code 2: the mixed 'visa on arrival / eTA' bucket (8,264 of these pairs are 'ETA' in Feb 2020). Mapped to its majority category, see short_code eta"
 numeric_code,1,visa_on_arrival,,"2019 code 1: visa on arrival. The README of the time says 1 = eTA, but these pairs are 'VOA' in Feb 2020"
 numeric_code,0,visa_required,,2019 code 0: visa required
 numeric_code,-1,home,,passport = destination
 short_code,vf,visa_free,,early-2020 'VF'
 short_code,voa,visa_on_arrival,,early-2020 'VOA'
-short_code,eta,e_visa,eta_or_e_visa,early-2020 'ETA' bucket also covers e-visas
+short_code,eta,visa_on_arrival,voa_eta_or_e_visa,"early-2020 'ETA' bucket mixes visas on arrival, ETAs and e-visas: when the source split them in Nov 2020, 75% became visa on arrival, 24% e-visa"
 short_code,vr,visa_required,,early-2020 'VR'
 short_code,-1,home,,passport = destination
 label,visa free,visa_free,,visa-free; number of days not given or not applicable

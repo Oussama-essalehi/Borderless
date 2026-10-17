@@ -11,9 +11,9 @@ from borderless_pipeline.export import CELL_CODES, decode_row, encode_row, write
 
 def test_row_encoding_round_trips():
     cells = [("visa_free", 90, None), ("home", None, None), ("visa_free", None, None),
-             ("no_admission", None, "covid_ban"), ("e_visa", None, "eta_or_e_visa"), ("eta", None, None)]
+             ("no_admission", None, "covid_ban"), ("visa_on_arrival", None, "voa_eta_or_e_visa"), ("eta", None, None)]
     row, days = encode_row(cells)
-    assert row == "FHFCXT"
+    assert row == "FHFCYT"
     assert days == [90, 0]
     assert decode_row(row, days) == cells
 

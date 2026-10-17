@@ -8,10 +8,13 @@ select
     m.visa_free_days,
     m.access_tier,
     m.ease_rank,
+    m.category_detail,
     lag(m.category)       over pair as previous_category,
+    lag(m.category_detail) over pair as previous_category_detail,
     lag(m.visa_free_days) over pair as previous_visa_free_days,
     lag(m.access_tier)    over pair as previous_access_tier,
     lag(m.ease_rank)      over pair as previous_ease_rank,
+    s.value_format,
     s.previous_value_format,
     s.is_first_eta_snapshot,
     s.source <> s.previous_source   as crosses_source_change

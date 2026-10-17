@@ -36,14 +36,14 @@ CATEGORIES: list[dict[str, str]] = [
 CATEGORY_INDEX = {c["key"]: i + 1 for i, c in enumerate(CATEGORIES)}
 # One character per (category, detail). Details keep the source's nuance:
 # COVID-19 bans, Qatar's 2022 Hayya permit, the UK electronic visa waiver and
-# the pre-2025 buckets where ETAs and e-visas are not distinguished.
+# and the pre-November-2020 bucket that mixes visas on arrival, ETAs and e-visas.
 CELL_CODES: dict[tuple[str, str | None], str] = {
     ("visa_free", None): "F",
     ("visa_on_arrival", None): "A",
     ("eta", None): "T",
     ("eta", "uk_electronic_visa_waiver"): "W",
     ("e_visa", None): "E",
-    ("e_visa", "eta_or_e_visa"): "X",
+    ("visa_on_arrival", "voa_eta_or_e_visa"): "Y",
     ("e_visa", "hayya_entry_permit"): "Q",
     ("visa_required", None): "V",
     ("no_admission", None): "N",

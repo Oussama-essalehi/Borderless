@@ -6,6 +6,7 @@ import { setupSearch } from "./search";
 import { setupTheme } from "./theme";
 import { renderPassportTab } from "./tabs/passport";
 import { accessView } from "./views/access";
+import { reciprocityView } from "./views/reciprocity";
 
 async function main(): Promise<void> {
   const [data, topo] = await Promise.all([
@@ -14,6 +15,7 @@ async function main(): Promise<void> {
   ]);
   const app = new App(data, topo);
   app.registerView(accessView);
+  app.registerView(reciprocityView);
   app.registerTab({ id: "passport", label: "Passport", render: renderPassportTab });
 
   setupTheme(document.getElementById("theme-toggle") as HTMLButtonElement, () => void app.themeChanged());

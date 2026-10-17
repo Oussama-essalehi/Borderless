@@ -1,6 +1,7 @@
 import type { App } from "../app";
 import { CATEGORY_LABEL, CATEGORY_ORDER, categoryColor, escapeHtml, formatDate, ordinal, swatch } from "../format";
 import type { CategoryKey } from "../types";
+import { reciprocityPanel } from "./reciprocity";
 
 export function renderPassportTab(app: App, body: HTMLElement): void {
   const { state } = app.store;
@@ -14,6 +15,13 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
       .filter((r) => r.rank !== null)
       .sort((a, b) => a.rank! - b.rank! || a.c.name.localeCompare(b.c.name))
       .slice(0, 15);
+    if (state.view === "reciprocity") {
+      body.innerHTML = `<h2>Who gives what back?</h2>
+        <p class="empty">Select a country to see which relationships are symmetric, and where it gives more access than it
+        gets. The map is shaded by each country's fairness score.</p>${reciprocityPanel(app)}`;
+      app.bindCountryLinks(body);
+      return;
+    }
     body.innerHTML = `
       <h2>Where can a passport take you?</h2>
       <p class="empty">Click a country on the map or search for it to see where its citizens can travel,
@@ -67,6 +75,8 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
       <div><div class="figure">${score ?? "–"}</div><div class="label">visa-free score</div></div>
       <div><div class="figure">${rank ? ordinal(rank) : "–"}</div><div class="label">world rank of ${of}</div></div>
     </div>
+    ${state.view === "reciprocity" ? reciprocityPanel(app) : ""}
+    <h3>Entry requirements</h3>
     <ul class="counts" aria-label="Destinations by entry requirement">
       ${CATEGORY_ORDER.map((key) => {
         const n = counts[key];

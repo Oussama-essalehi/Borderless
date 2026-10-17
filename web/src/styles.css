@@ -399,3 +399,42 @@ dialog.about a { color: var(--accent); }
 .about-close { float: right; }
 .disclaimer .linklike { font-size: inherit; color: var(--ink-2); }
 .lang-toggle { width: auto; padding: 0 10px; font-size: 12px; font-weight: 650; letter-spacing: 0.04em; }
+
+/* ---------------------------------------------------------------- welcome dialog */
+dialog.welcome {
+  width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 0;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--ink);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+dialog.welcome::backdrop { background: rgba(11, 11, 11, 0.55); }
+/* The text scrolls, the action bar stays visible. */
+dialog.welcome[open] { display: flex; flex-direction: column; }
+.welcome-body { padding: 18px 24px 8px; overflow-y: auto; min-height: 0; flex: 1 1 auto; }
+.welcome-top { display: flex; justify-content: space-between; align-items: center; }
+.welcome-lang { order: 0; }
+.welcome-lang button { font-size: 12px; font-weight: 650; padding: 3px 10px; }
+.welcome h2 { font-size: 22px; margin: 10px 0 6px; }
+.welcome h2:focus { outline: none; }
+.welcome h3 { font-size: 14px; margin: 16px 0 4px; color: var(--accent); }
+.welcome p, .welcome li { color: var(--ink-2); margin: 4px 0; }
+.welcome .welcome-lead { color: var(--ink); font-size: 15px; }
+.welcome ul { margin: 4px 0; padding-left: 20px; }
+.welcome strong { color: var(--ink); }
+.welcome .swatch.inline { vertical-align: -1px; margin: 0 1px; }
+.welcome a { color: var(--accent); }
+.welcome-author { margin-top: 16px !important; font-size: 13px; color: var(--muted) !important; }
+.welcome-actions { flex: none; display: flex; justify-content: flex-end; padding: 12px 24px 16px; border-top: 1px solid var(--hairline); }
+.primary-button {
+  border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer;
+  background: var(--accent); color: #fff;
+}
+.primary-button:hover { filter: brightness(1.08); }
+:root[data-theme="dark"] .primary-button { color: #0b0b0b; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .primary-button { color: #0b0b0b; }
+}
+@media (max-width: 860px) {
+  .welcome-body { padding: 14px 16px 8px; }
+  .welcome-actions { padding: 12px 16px 16px; }
+  .welcome-actions .primary-button { width: 100%; }
+}

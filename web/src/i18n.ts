@@ -298,6 +298,30 @@ const en = {
   "about.limitTerritories":
     "Territories missing from the visa data or the boundaries (for example Western Sahara, Northern Cyprus, Somaliland, overseas territories) are shown as \"no data\".",
   "about.limitGaps": "Snapshots are irregular, with gaps in mid-2020 and between January 2025 and February 2026.",
+
+  // welcome dialog
+  "wel.open": "About this project",
+  "wel.title": "Welcome to Borderless",
+  "wel.intro":
+    "An interactive atlas of visa access. For each of {passports} passports, it shows where its holders can travel visa-free, with a visa on arrival, an electronic travel authorisation (ETA) or an e-visa, and how that changed across {n} snapshots between {from} and {to}.",
+  "wel.questionsTitle": "The questions",
+  "wel.q1": "Which passports open the most doors, and how hard did COVID-19 close them?",
+  "wel.q2": "Do countries give back the access they get?",
+  "wel.q3": "Are there visa blocs, and does a country's wealth explain the strength of its passport?",
+  "wel.howTitle": "How to use it",
+  "wel.howClick": "<strong>Click a country</strong> on the map, or search for it at the top, to see where its passport takes you. Hover any country for details.",
+  "wel.howViews": "<strong>Views</strong> at the top: Access, Reciprocity (who gives back what), Two passports (dual citizens) and Blocs (groups found by network analysis).",
+  "wel.howTime": "<strong>The time slider</strong> at the bottom goes back to November 2019; the panel shows the score over time.",
+  "wel.howTabs": "<strong>The panel tabs</strong>: Passport, Insights (network rankings), Wealth (passport strength vs GDP and HDI), Trips (where to go without paperwork) and Changes (what changed in the latest data).",
+  "wel.readTitle": "Reading the map",
+  "wel.read": "Blue means easy entry, red means hard: {free} visa-free, {voa} visa on arrival, {eta} ETA, {evisa} e-visa, {vr} visa required, {no} no admission. Hatched areas have no data.",
+  "wel.dataTitle": "The data",
+  "wel.data":
+    "Visa requirements come from the Passport Index dataset (2019–2026), economic context from the World Bank and UNDP, borders from Natural Earth. A monthly pipeline (Airflow, dbt, DuckDB and networkx) cleans, tests and analyses the data, then exports it to this static site.",
+  "wel.dataLimits": "Details, methodology and limitations are in “About the data” at the bottom of the page.",
+  "wel.author": "Data analysis project by Oussama Essalehi.",
+  "wel.code": "Source code on GitHub",
+  "wel.cta": "Explore the map",
 };
 
 export type Key = keyof typeof en;
@@ -577,6 +601,29 @@ const fr: Record<Key, string> = {
   "about.limitTerritories":
     "Les territoires absents des données de visa ou des frontières (par exemple le Sahara occidental, Chypre du Nord, le Somaliland, les territoires d'outre-mer) sont affichés « pas de données ».",
   "about.limitGaps": "Les instantanés sont irréguliers, avec des trous mi-2020 et entre janvier 2025 et février 2026.",
+
+  "wel.open": "À propos du projet",
+  "wel.title": "Bienvenue sur Borderless",
+  "wel.intro":
+    "Un atlas interactif de l'accès sans visa. Pour chacun des {passports} passeports, il montre où ses titulaires peuvent voyager sans visa, avec un visa à l'arrivée, une autorisation de voyage électronique (AVE) ou un e-visa, et comment cela a évolué au fil de {n} instantanés entre le {from} et le {to}.",
+  "wel.questionsTitle": "Les questions",
+  "wel.q1": "Quels passeports ouvrent le plus de portes, et à quel point le COVID-19 les a-t-il fermées ?",
+  "wel.q2": "Les pays rendent-ils l'accès qu'ils obtiennent ?",
+  "wel.q3": "Existe-t-il des blocs de visas, et la richesse d'un pays explique-t-elle la force de son passeport ?",
+  "wel.howTitle": "Comment l'utiliser",
+  "wel.howClick": "<strong>Cliquez sur un pays</strong> de la carte, ou recherchez-le en haut, pour voir où son passeport permet d'aller. Survolez un pays pour le détail.",
+  "wel.howViews": "<strong>Les vues</strong> en haut : Accès, Réciprocité (qui rend quoi), Deux passeports (binationaux) et Blocs (groupes trouvés par analyse de réseau).",
+  "wel.howTime": "<strong>La frise</strong> en bas remonte jusqu'à novembre 2019 ; le panneau montre l'évolution du score.",
+  "wel.howTabs": "<strong>Les onglets du panneau</strong> : Passeport, Réseau (classements), Richesse (force du passeport face au PIB et à l'IDH), Voyages (où partir sans démarche) et Évolutions (ce qui a changé dans les dernières données).",
+  "wel.readTitle": "Lire la carte",
+  "wel.read": "Le bleu signifie une entrée facile, le rouge une entrée difficile : {free} sans visa, {voa} visa à l'arrivée, {eta} AVE, {evisa} e-visa, {vr} visa obligatoire, {no} entrée interdite. Les zones hachurées n'ont pas de données.",
+  "wel.dataTitle": "Les données",
+  "wel.data":
+    "Les conditions de visa viennent du Passport Index dataset (2019–2026), le contexte économique de la Banque mondiale et du PNUD, les frontières de Natural Earth. Un pipeline mensuel (Airflow, dbt, DuckDB et networkx) nettoie, teste et analyse les données, puis les exporte vers ce site statique.",
+  "wel.dataLimits": "Le détail, la méthodologie et les limites sont dans « À propos des données », en bas de page.",
+  "wel.author": "Projet d'analyse de données réalisé par Oussama Essalehi.",
+  "wel.code": "Code source sur GitHub",
+  "wel.cta": "Explorer la carte",
 };
 
 const DICTS: Record<Lang, Record<Key, string>> = { en, fr };
@@ -667,7 +714,9 @@ export function locale(): string {
 }
 
 export function t(key: Key, vars: Record<string, string | number> = {}): string {
-  const text = DICTS[current][key] ?? en[key] ?? key;
+  let text = DICTS[current][key] ?? en[key] ?? key;
+  // French typography: a non-breaking space before ? ! : ; and inside « », so they never start a line.
+  if (current === "fr") text = text.replace(/ ([?!:;»])/g, "\u00a0$1").replace(/« /g, "«\u00a0");
   return text.replace(/\{(\w+)\}/g, (_, name: string) => (name in vars ? String(vars[name]) : `{${name}}`));
 }
 

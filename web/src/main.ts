@@ -6,6 +6,7 @@ import { detectLang, setLang, t } from "./i18n";
 import { applyPageText, setupLangToggle } from "./page";
 import { setupSearch } from "./search";
 import { setupAbout } from "./about";
+import { setupWelcome } from "./welcome";
 import { setupTheme } from "./theme";
 import { setupTimeline } from "./timeline";
 import { renderPassportTab } from "./tabs/passport";
@@ -41,9 +42,11 @@ async function main(): Promise<void> {
   setupLangToggle(app, document.getElementById("lang-toggle") as HTMLButtonElement);
   setupSearch(app);
   setupAbout(app);
+  const welcome = setupWelcome(app, document.getElementById("welcome-open") as HTMLButtonElement);
   app.onRender(setupTimeline(app, document.getElementById("timeline")!));
   new ResizeObserver(() => app.map.resize()).observe(document.getElementById("map")!);
   await app.start();
+  welcome.showIfFirstVisit();
 }
 
 main().catch((err) => {

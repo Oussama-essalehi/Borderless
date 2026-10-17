@@ -36,8 +36,9 @@ export function setupAbout(app: App): void {
       <li>One category per pair can't express conditional access (e.g. visa-free with a valid US or Schengen visa,
         only by air, only for tourism). The map shows the general rule.</li>
       <li>Schengen stays are counted across the whole area: 90 days in any 180, not per country.</li>
-      <li>ETAs are only a separate category from 12 January 2025; before that they are counted as e-visas.
-        2019 snapshots have no day counts.</li>
+      <li>Categories changed over time. Before November 2020 one bucket mixed visa on arrival, ETA and e-visa; it is
+        shown as visa on arrival (75% of it became that when the source split it), so earlier scores are approximate.
+        ETAs are a separate category only from 12 January 2025. 2019 snapshots have no day counts.</li>
       <li>Territories missing from the visa data or the boundaries (for example Western Sahara, Northern Cyprus, Somaliland,
         overseas territories) are shown as "no data".</li>
       <li>Snapshots are irregular, with gaps in mid-2020 and between January 2025 and February 2026.</li>

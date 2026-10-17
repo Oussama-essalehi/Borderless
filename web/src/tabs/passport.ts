@@ -69,7 +69,10 @@ export function renderPassportTab(app: App, body: HTMLElement): void {
     notes.push(`<strong>Schengen:</strong> a visa-free stay is counted across the whole Schengen Area
       (usually 90 days in any 180-day period), not per country.`);
   }
-  if (snapshot && !snapshot.eta_is_distinct) {
+  if (snapshot && snapshot.value_format !== "label") {
+    notes.push(`Before November 2020 the source used one bucket for visa on arrival, ETA and e-visa. It is shown as
+      visa on arrival (what most of it became), so scores for this snapshot are approximate.`);
+  } else if (snapshot && !snapshot.eta_is_distinct) {
     notes.push(`In this snapshot ETAs are not separated from e-visas; the split starts on 12 January 2025.`);
   }
   notes.push(`Some entries depend on conditions (for example, visa-free with a valid US or Schengen visa,

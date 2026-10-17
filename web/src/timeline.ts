@@ -98,7 +98,8 @@ export function setupTimeline(app: App, root: HTMLElement): () => void {
     const notes = [];
     if (info.covid_ban_pairs > 0) notes.push(`${info.covid_ban_pairs.toLocaleString("en")} COVID-19 entry bans`);
     if (info.source_changed) notes.push("new data maintainer from this snapshot");
-    if (!info.eta_is_distinct) notes.push("ETAs counted as e-visas");
+    if (info.value_format !== "label") notes.push("visa on arrival, ETA and e-visa not separated");
+    else if (!info.eta_is_distinct) notes.push("ETAs counted as e-visas");
     if (info.value_format === "numeric_code") notes.push("no day counts");
     root.querySelector("#tl-note")!.textContent = notes.length ? `· ${notes.join(" · ")}` : "";
     root.querySelector<HTMLButtonElement>("#tl-latest")!.hidden = date === app.data.latestDate;

@@ -19,7 +19,7 @@ export const DETAIL_LABEL: Record<string, string> = {
   covid_ban: "COVID-19 entry ban",
   hayya_entry_permit: "Hayya entry permit (World Cup 2022)",
   uk_electronic_visa_waiver: "UK electronic visa waiver",
-  eta_or_e_visa: "ETA or e-visa (not distinguished before 2025)",
+  voa_eta_or_e_visa: "Approximate: before November 2020 the source used one bucket for visa on arrival, ETA and e-visa",
 };
 
 export function categoryColor(category: CategoryKey): string {

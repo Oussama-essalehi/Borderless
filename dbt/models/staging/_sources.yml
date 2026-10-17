@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw tables written by the pipeline's load step (full refresh each run).
+    schema: raw
+    tables:
+      - name: visa_requirements
+        description: One row per snapshot, passport and destination, exactly as published in the Passport Index tidy ISO-3 CSVs.
+      - name: visa_snapshots
+        description: Index of visa snapshots with the git commit and path each one was read from.
+      - name: worldbank_gdp_per_capita
+        description: World Bank indicator NY.GDP.PCAP.CD (GDP per capita, current US$), country-year.
+      - name: worldbank_countries
+        description: World Bank economies (aggregates removed) with region and income group.
+      - name: undp_hdi
+        description: UNDP Human Development Report composite indices, complete time series (wide, all text).
+      - name: natural_earth_countries
+        description: Natural Earth 1:50m admin-0 feature attributes.
+      - name: source_manifest
+        description: Download date and URL of every raw source.

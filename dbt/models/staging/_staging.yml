@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: stg_visa__requirements
+    description: Visa requirement rows from every snapshot, codes upper-cased and values trimmed. Values are still in the format of their era.
+    columns:
+      - name: snapshot_date
+        data_tests: [not_null]
+      - name: passport_iso3
+        data_tests: [not_null]
+      - name: destination_iso3
+        data_tests: [not_null]
+      - name: requirement_raw
+        description: Value as published (number of days, label, or 2019 numeric code).
+        data_tests: [not_null]
+
+  - name: stg_visa__snapshots
+    description: One row per visa snapshot with its provenance.
+    columns:
+      - name: snapshot_date
+        data_tests: [not_null, unique]
+
+  - name: stg_worldbank__gdp_per_capita
+    description: GDP per capita in current US$ by country and year.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [iso3, year]
+    columns:
+      - name: iso3
+        data_tests: [not_null]
+
+  - name: stg_worldbank__countries
+    description: World Bank economies with region and income group.
+    columns:
+      - name: iso3
+        data_tests: [not_null, unique]
+
+  - name: stg_undp__hdi
+    description: Human Development Index, long format.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [iso3, year]
+    columns:
+      - name: hdi
+        data_tests: [not_null]
+
+  - name: stg_natural_earth__countries
+    description: Natural Earth admin-0 attributes; '-99' codes turned into nulls.
+    columns:
+      - name: ne_adm0_a3
+        data_tests: [not_null, unique]

@@ -1,0 +1,7 @@
+borderless:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('BORDERLESS_DUCKDB_PATH', '../pipeline/warehouse/borderless.duckdb') }}"
+      threads: 1

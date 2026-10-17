@@ -43,6 +43,27 @@ dbt-docs: $(STAMP) ## Generate dbt docs and serve them on http://localhost:8081
 test: $(STAMP) ## Run the Python test suite
 	$(BIN)/pytest pipeline
 
+# ------------------------------------------------------------------ front-end
+web/node_modules: web/package.json
+	cd web && npm install
+	touch $@
+
+.PHONY: web-dev
+web-dev: web/node_modules ## Start the front-end dev server on http://localhost:5173
+	cd web && npm run dev
+
+.PHONY: web-build
+web-build: web/node_modules ## Type-check and build the static site into web/dist
+	cd web && npm run build
+
+.PHONY: web-test
+web-test: web/node_modules ## Run the front-end unit tests
+	cd web && npm test
+
+.PHONY: geo
+geo: web/node_modules ## Rebuild the simplified country shapes (web/public/geo)
+	cd web && npm run geo
+
 # -------------------------------------------------------------------- airflow
 .env:
 	@echo "AIRFLOW_UID=$$(id -u)" > .env
